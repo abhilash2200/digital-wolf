@@ -1,0 +1,396 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* ------------------------------------------------------------------
+   Design tokens — Digital Wolf
+   Colours, type, spacing and layout from the build spec (§3).
+   ------------------------------------------------------------------ */
+@theme {
+  /* Palette */
+  --color-paper: #f8f8f6; /* warm white — page background */
+  --color-surface: #ffffff; /* clean surfaces */
+  --color-ink: #111111; /* primary text */
+  --color-ink-muted: #555555; /* supporting text */
+  --color-mist: #eaeae7; /* subtle section surfaces */
+  --color-gloss: #ffffff; /* light glossy cards */
+  --color-silver: #b8b8b8; /* restrained highlights */
+  --color-line: #e3e3e0; /* dividers and borders */
+
+  /* Type */
+  --font-sans: var(--font-general-sans), "Manrope", "Inter", ui-sans-serif,
+    system-ui, sans-serif;
+
+  /* Breakpoints: small mobile 320, mobile 375, large mobile 431, tablet 768, desktop 1024 */
+  --breakpoint-xs: 23.4375rem; /* 375px */
+  --breakpoint-sm: 26.9375rem; /* 431px */
+  --breakpoint-md: 48rem; /* 768px */
+  --breakpoint-lg: 64rem; /* 1024px */
+  --breakpoint-xl: 80rem; /* 1280px */
+  --breakpoint-2xl: 90rem; /* 1440px */
+
+  /* Easing */
+  --ease-editorial: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root,
+html,
+body {
+  /* Layout tokens (mobile first) */
+  --gutter-x: 20px;
+  --header-h: 66px;
+  --section-y: 72px;
+  --content-max: 1280px;
+
+  /* Strictly light theme — lock browser and form control rendering to light */
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root,
+  html,
+  body {
+    color-scheme: light;
+  }
+}
+
+@media (min-width: 768px) {
+  :root {
+    --gutter-x: 32px;
+    --header-h: 76px;
+    --section-y: 100px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --gutter-x: 64px;
+    --header-h: 84px;
+    --section-y: 140px;
+  }
+}
+
+/* ------------------------------------------------------------------
+   shadcn/ui semantic tokens, mapped onto the Digital Wolf palette so
+   library components inherit the brand instead of shadcn defaults.
+   Light theme only — the site has no dark mode.
+   ------------------------------------------------------------------ */
+@theme inline {
+  --color-background: var(--color-paper);
+  --color-foreground: var(--color-ink);
+  --color-card: var(--color-surface);
+  --color-card-foreground: var(--color-ink);
+  --color-popover: var(--color-surface);
+  --color-popover-foreground: var(--color-ink);
+  --color-primary: var(--color-ink);
+  --color-primary-foreground: var(--color-paper);
+  --color-secondary: var(--color-mist);
+  --color-secondary-foreground: var(--color-ink);
+  --color-muted: var(--color-mist);
+  --color-muted-foreground: var(--color-ink-muted);
+  --color-accent: var(--color-mist);
+  --color-accent-foreground: var(--color-ink);
+  --color-destructive: #a8261b;
+  --color-border: var(--color-line);
+  --color-input: #cfcfcb;
+  --color-ring: var(--color-ink);
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+}
+
+/* ------------------------------------------------------------------
+   Base
+   ------------------------------------------------------------------ */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    overflow-x: clip;
+    scroll-padding-top: var(--header-h);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "ss03";
+    text-rendering: optimizeLegibility;
+    overflow-x: clip;
+  }
+
+  ::selection {
+    background-color: var(--color-ink);
+    color: var(--color-paper);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Layout + type utilities
+   ------------------------------------------------------------------ */
+@utility container-dw {
+  width: 100%;
+  max-width: calc(var(--content-max) + var(--gutter-x) * 2);
+  margin-inline: auto;
+  padding-inline: var(--gutter-x);
+}
+
+@utility section-y {
+  padding-block: var(--section-y);
+}
+
+/* Hero heading: 38px @ 320 → 88px @ 1440 */
+@utility text-display {
+  font-size: clamp(2.375rem, 1.48rem + 4.46vw, 5.5rem);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  font-weight: 500;
+}
+
+/* Section heading: 32px @ 320 → 64px @ 1440 */
+@utility text-section {
+  font-size: clamp(2rem, 1.43rem + 2.86vw, 4rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-weight: 500;
+}
+
+/* Card heading: 18px → 26px */
+@utility text-card {
+  font-size: clamp(1.125rem, 0.98rem + 0.71vw, 1.625rem);
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  font-weight: 500;
+}
+
+/* Body: 15px → 17px */
+@utility text-body {
+  font-size: clamp(0.9375rem, 0.9rem + 0.18vw, 1.0625rem);
+  line-height: 1.6;
+}
+
+@utility text-eyebrow {
+  font-size: 0.75rem;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* ------------------------------------------------------------------
+   Gloss surfaces — light glossy textured cards.
+   --mx / --my are set by pointer tracking on fine-pointer devices.
+   ------------------------------------------------------------------ */
+@utility gloss-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background-color: var(--color-gloss);
+  border: 1px solid var(--color-line);
+  color: var(--color-ink);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.9),
+    0 10px 30px -10px rgb(17 17 17 / 0.05),
+    0 20px 40px -20px rgb(17 17 17 / 0.06);
+  /* Hover affects box-shadow and border — GSAP owns transform/opacity on these cards. */
+  transition: box-shadow 500ms var(--ease-editorial), border-color 300ms ease;
+
+  @media (hover: hover) {
+    &:hover {
+      border-color: #cfcfcb;
+      box-shadow:
+        inset 0 1px 0 rgb(255 255 255 / 1),
+        0 14px 36px -10px rgb(17 17 17 / 0.08),
+        0 28px 56px -20px rgb(17 17 17 / 0.1);
+    }
+  }
+
+  /* Fixed top sheen */
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      165deg,
+      rgb(255 255 255 / 0.8) 0%,
+      rgb(255 255 255 / 0.2) 28%,
+      transparent 50%
+    );
+    pointer-events: none;
+  }
+
+  /* Pointer-following highlight */
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(
+      420px circle at var(--mx, 70%) var(--my, 0%),
+      rgb(255 255 255 / 0.7),
+      transparent 60%
+    );
+    opacity: var(--glow, 0.4);
+    transition: opacity 400ms var(--ease-editorial);
+    pointer-events: none;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Liquid glass — translucent surfaces with a cursor-following specular
+   highlight. On Chromium desktop (html[data-refract]) they also refract
+   what's behind them through an SVG lens (see lib/liquid.ts); elsewhere they
+   fall back to frosted glass.
+   ------------------------------------------------------------------ */
+@utility liquid-glass {
+  position: relative;
+  isolation: isolate;
+  background-color: rgb(255 255 255 / 0.5);
+  border: 1px solid rgb(255 255 255 / 0.65);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.95),
+    inset 0 -1px 1px rgb(17 17 17 / 0.06),
+    inset 0 0 18px rgb(255 255 255 / 0.35),
+    0 10px 36px -14px rgb(17 17 17 / 0.28);
+  -webkit-backdrop-filter: blur(16px) saturate(1.6);
+  backdrop-filter: blur(16px) saturate(1.6);
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: radial-gradient(
+      160px circle at var(--gx, 30%) var(--gy, -20%),
+      rgb(255 255 255 / 0.7),
+      transparent 70%
+    );
+    opacity: 0.55;
+    transition: opacity 400ms var(--ease-editorial);
+    pointer-events: none;
+  }
+
+  &:hover::after {
+    opacity: 1;
+  }
+}
+
+/* Dark-context variant: glass over imagery or gloss panels. */
+@utility liquid-glass-dark {
+  position: relative;
+  isolation: isolate;
+  color: #fff;
+  background-color: rgb(255 255 255 / 0.1);
+  border: 1px solid rgb(255 255 255 / 0.28);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.45),
+    inset 0 0 20px rgb(255 255 255 / 0.08),
+    0 12px 40px -16px rgb(0 0 0 / 0.6);
+  -webkit-backdrop-filter: blur(14px) saturate(1.5);
+  backdrop-filter: blur(14px) saturate(1.5);
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: radial-gradient(
+      140px circle at var(--gx, 30%) var(--gy, -20%),
+      rgb(255 255 255 / 0.35),
+      transparent 70%
+    );
+    opacity: 0.6;
+    transition: opacity 400ms var(--ease-editorial);
+    pointer-events: none;
+  }
+
+  &:hover::after {
+    opacity: 1;
+  }
+}
+
+/* Real refraction where supported: the lens bends the backdrop at the rim. */
+html[data-refract="on"] .liquid-glass {
+  background-color: rgb(255 255 255 / 0.26);
+  -webkit-backdrop-filter: var(--lens,) blur(1.5px) saturate(1.7) brightness(1.04);
+  backdrop-filter: var(--lens,) blur(1.5px) saturate(1.7) brightness(1.04);
+}
+
+html[data-refract="on"] .liquid-glass-dark {
+  background-color: rgb(255 255 255 / 0.06);
+  -webkit-backdrop-filter: var(--lens,) blur(2px) saturate(1.4);
+  backdrop-filter: var(--lens,) blur(2px) saturate(1.4);
+}
+
+/* ------------------------------------------------------------------
+   Liquid page transition: the new page rises in behind a wavy edge.
+   Triggered by SmartLink's "liquid" transition type; desktop only.
+   ------------------------------------------------------------------ */
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(.liquid) {
+    animation: 420ms cubic-bezier(0.4, 0, 1, 1) both liquid-sink;
+  }
+
+  ::view-transition-new(.liquid) {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 300' preserveAspectRatio='none'%3E%3Cpath d='M0 100 C 12 88, 24 112, 36 100 S 60 88, 72 100 S 92 110, 100 98 L100 300 L0 300 Z'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 300' preserveAspectRatio='none'%3E%3Cpath d='M0 100 C 12 88, 24 112, 36 100 S 60 88, 72 100 S 92 110, 100 98 L100 300 L0 300 Z'/%3E%3C/svg%3E");
+    -webkit-mask-size: 100% 300%;
+    mask-size: 100% 300%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    animation: 900ms cubic-bezier(0.7, 0, 0.2, 1) both liquid-rise;
+  }
+}
+
+@media (max-width: 1023.98px), (prefers-reduced-motion: reduce) {
+  ::view-transition-old(.liquid),
+  ::view-transition-new(.liquid) {
+    animation: none;
+  }
+}
+
+@keyframes liquid-rise {
+  from {
+    -webkit-mask-position: 50% 0%;
+    mask-position: 50% 0%;
+  }
+  to {
+    -webkit-mask-position: 50% 50%;
+    mask-position: 50% 50%;
+  }
+}
+
+@keyframes liquid-sink {
+  to {
+    opacity: 0.55;
+    filter: blur(2px);
+    transform: translateY(-24px) scale(0.985);
+  }
+}
+
