@@ -10,8 +10,6 @@ import {
   type LiquidFilter,
 } from "@/lib/liquid";
 
-const FluidCursor = dynamic(() => import("./FluidCursor"), { ssr: false });
-
 /**
  * Desktop-only liquid layer (fine pointer, motion allowed):
  *  - sets html[data-liquid] (+ [data-refract] on Chromium) so CSS can opt in
@@ -22,8 +20,6 @@ const FluidCursor = dynamic(() => import("./FluidCursor"), { ssr: false });
  * Phones, tablets and reduced-motion users get none of it.
  */
 export function LiquidEffects() {
-  const [cursor, setCursor] = useState(false);
-
   useEffect(() => {
     const mq = window.matchMedia(LIQUID_QUERY);
     let teardown: (() => void) | undefined;
@@ -31,8 +27,7 @@ export function LiquidEffects() {
     const apply = () => {
       teardown?.();
       teardown = undefined;
-      setCursor(false);
-      if (mq.matches) teardown = enable(() => setCursor(true));
+      if (mq.matches) teardown = enable();
     };
 
     apply();
@@ -43,10 +38,10 @@ export function LiquidEffects() {
     };
   }, []);
 
-  return cursor ? <FluidCursor /> : null;
+  return null;
 }
 
-function enable(startCursor: () => void) {
+function enable() {
   const html = document.documentElement;
   const refract = supportsLiquidRefraction();
   html.dataset.liquid = "on";
@@ -130,10 +125,6 @@ function enable(startCursor: () => void) {
   };
   document.addEventListener("pointerover", onPointerOver, { passive: true });
 
-  // --- Fluid cursor, once the page has settled ---
-  const idle = hasIdle ? window.requestIdleCallback(startCursor, { timeout: 2500 }) : 0;
-  const timer = hasIdle ? undefined : setTimeout(startCursor, 1200);
-
   return () => {
     delete html.dataset.liquid;
     delete html.dataset.refract;
@@ -147,9 +138,7 @@ function enable(startCursor: () => void) {
     document.removeEventListener("pointermove", onPointerMove);
     document.removeEventListener("pointerover", onPointerOver);
     if (hasIdle) {
-      window.cancelIdleCallback(idle);
       window.cancelIdleCallback(firstScan);
     }
-    clearTimeout(timer);
   };
 }
