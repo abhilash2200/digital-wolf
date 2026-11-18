@@ -245,7 +245,7 @@ function ProjectVisual({
       )}
       {concept && (
         <PlaceholderTag className="absolute bottom-0 left-0 liquid-glass">
-          Concept artwork · project imagery pending
+          Concept art · imagery pending
         </PlaceholderTag>
       )}
     </div>

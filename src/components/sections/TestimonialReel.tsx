@@ -68,7 +68,7 @@ export function TestimonialReel({ items }: { items: readonly Testimonial[] }) {
       {/* Above the reel, not in a slide, so the hung quote mark stays level with the quote. */}
       {samples > 0 && (
         <PlaceholderTag className="mb-8 lg:mb-10">
-          {samples === items.length ? "Sample testimonials" : "Includes sample testimonials"} · replace before launch
+          {samples === items.length ? "Sample quotes" : "Includes sample quotes"} · replace before launch
         </PlaceholderTag>
       )}
       <div
