@@ -14,13 +14,20 @@ function Accordion({ className, ...props }: AccordionPrimitive.Root.Props) {
   )
 }
 
-function AccordionItem({ className, ...props }: AccordionPrimitive.Item.Props) {
+function AccordionItem({ className, children, ...props }: AccordionPrimitive.Item.Props) {
   return (
     <AccordionPrimitive.Item
       data-slot="accordion-item"
-      className={cn("border-b border-line", className)}
+      className={cn("group/item relative border-b border-line", className)}
       {...props}
-    />
+    >
+      {children}
+      {/* The open item's rule draws across in ember (the FAQ's one accent). */}
+      <span
+        aria-hidden="true"
+        className="absolute inset-x-0 -bottom-px h-px origin-left scale-x-0 bg-ember transition-transform duration-700 ease-editorial group-data-open/item:scale-x-100 motion-reduce:transition-none"
+      />
+    </AccordionPrimitive.Item>
   )
 }
 
@@ -34,7 +41,7 @@ function AccordionTrigger({
       <AccordionPrimitive.Trigger
         data-slot="accordion-trigger"
         className={cn(
-          "group/accordion-trigger flex min-h-16 flex-1 items-center justify-between gap-6 py-5 text-left text-[1.0625rem] leading-snug font-medium tracking-[-0.01em] text-ink transition-colors outline-none hover:text-ink-muted focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-solid focus-visible:outline-ink md:text-xl aria-disabled:pointer-events-none aria-disabled:opacity-50",
+          "group/accordion-trigger flex min-h-16 flex-1 items-center justify-between gap-6 py-6 text-left text-[1.25rem] leading-[1.2] font-normal tracking-[-0.02em] text-ink transition-colors outline-none hover:text-ink-muted md:py-7 lg:text-[clamp(1.5rem,1rem+0.9vw,1.875rem)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-solid focus-visible:outline-ink aria-disabled:pointer-events-none aria-disabled:opacity-50",
           className
         )}
         {...props}
@@ -42,7 +49,7 @@ function AccordionTrigger({
         {children}
         <span
           aria-hidden="true"
-          className="inline-flex size-9 shrink-0 items-center justify-center rounded-full border border-line text-ink transition-[background-color,border-color,color] duration-300 group-aria-expanded/accordion-trigger:border-ink group-aria-expanded/accordion-trigger:bg-ink group-aria-expanded/accordion-trigger:text-paper"
+          className="inline-flex size-10 shrink-0 items-center justify-center rounded-full border border-line text-ink transition-[border-color] duration-300 group-aria-expanded/accordion-trigger:border-ink/40"
         >
           <Plus
             className="size-4 transition-transform duration-500 ease-editorial group-aria-expanded/accordion-trigger:rotate-45 motion-reduce:transition-none"
@@ -67,7 +74,7 @@ function AccordionContent({
     >
       <div
         className={cn(
-          "h-(--accordion-panel-height) max-w-[62ch] pr-12 pb-6 text-body text-ink-muted data-ending-style:h-0 data-starting-style:h-0 [&_p:not(:last-child)]:mb-4",
+          "h-(--accordion-panel-height) max-w-[58ch] pr-4 pb-8 text-body md:pr-14 text-ink-muted data-ending-style:h-0 data-starting-style:h-0 [&_p:not(:last-child)]:mb-4",
           className
         )}
       >
