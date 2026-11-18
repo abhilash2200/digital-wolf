@@ -33,7 +33,7 @@ export const SERVICES = {
       services: [
         {
           id: "seo",
-          image: "/images/art/svc-seo.webp",
+          image: "/images/art/svc-seo-ember.webp",
           title: "SEO",
           summary: "Help the right customers find you through search.",
           items: [
@@ -46,7 +46,7 @@ export const SERVICES = {
         },
         {
           id: "digital-strategy",
-          image: "/images/art/svc-strategy.webp",
+          image: "/images/art/svc-strategy-ember.webp",
           title: "Digital Strategy",
           summary: "Set clear priorities and a plan that connects every channel.",
           items: [
@@ -65,7 +65,7 @@ export const SERVICES = {
       services: [
         {
           id: "development",
-          image: "/images/art/svc-development.webp",
+          image: "/images/art/svc-development-ember.webp",
           title: "Website & Application Development",
           summary: "Build fast, dependable websites and web applications.",
           items: [
@@ -78,7 +78,7 @@ export const SERVICES = {
         },
         {
           id: "creative",
-          image: "/images/art/svc-creative.webp",
+          image: "/images/art/svc-creative-ember.webp",
           title: "Creative & Design",
           summary: "Shape a consistent brand and experiences people remember.",
           items: [
@@ -97,7 +97,7 @@ export const SERVICES = {
       services: [
         {
           id: "ppc",
-          image: "/images/art/svc-ppc.webp",
+          image: "/images/art/svc-ppc-ember.webp",
           title: "PPC & Performance Marketing",
           summary: "Run paid campaigns that are targeted, tracked and optimised.",
           items: [
@@ -110,7 +110,7 @@ export const SERVICES = {
         },
         {
           id: "social",
-          image: "/images/art/svc-social.webp",
+          image: "/images/art/svc-social-ember.webp",
           title: "Social Media Marketing",
           summary: "Build an engaged audience with a consistent social presence.",
           items: [
