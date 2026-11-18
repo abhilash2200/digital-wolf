@@ -1,0 +1,122 @@
+<!doctype html>
+<html><head><style>html,body{margin:0;background:#F8F8F6}canvas{display:block}</style></head>
+<body>
+<canvas id="c"></canvas>
+<script>
+// Liquid pearl generator. Query: ?w=&h=&mode=ribbon|pool&seed=&zoom=&width=&accent=RRGGBB&flip=1|-1
+const q = new URLSearchParams(location.search);
+const W = +q.get("w") || 1600, H = +q.get("h") || 1600;
+const MODE = q.get("mode") === "pool" ? 1 : 0;
+const SEED = +q.get("seed") || 1;
+const c = document.getElementById("c");
+c.width = W; c.height = H; c.style.width = W + "px"; c.style.height = H + "px";
+const gl = c.getContext("webgl", { alpha: true, premultipliedAlpha: false, preserveDrawingBuffer: true, antialias: false });
+const vs = `attribute vec2 a; void main(){ gl_Position = vec4(a,0.,1.); }`;
+const fs = `
+precision highp float;
+uniform vec2 R; uniform float MODE; uniform float SEED; uniform float ZOOM; uniform float WIDTH; uniform vec3 ACCENT; uniform float FLIP;
+float hash(vec2 p){ p = fract(p*vec2(123.34, 456.21) + SEED*0.137); p += dot(p, p+45.32); return fract(p.x*p.y); }
+float noise(vec2 p){ vec2 i=floor(p), f=fract(p); vec2 u=f*f*f*(f*(f*6.-15.)+10.);
+  return mix(mix(hash(i),hash(i+vec2(1,0)),u.x), mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),u.x), u.y); }
+float fbm(vec2 p){ float v=0., a=.5; for(int i=0;i<5;i++){ v+=a*noise(p); p=p*2.03+vec2(1.7,9.2); a*=.5; } return v; }
+
+// Height field + coverage. p is centred, aspect-corrected.
+vec2 field(vec2 p){
+  if (MODE < .5) {
+    // A wide silk ribbon falling diagonally, pinching where it twists over.
+    float t = p.y;
+    float xc = .20*sin(t*1.9 + .7 + SEED*.3) - .30*t;
+    float pinch = abs(cos(t*1.55 + .35 + SEED*.2));
+    float w = (.065 + .25*pinch)*WIDTH;
+    float s = (p.x - xc) / w;
+    float warp = .5*sin(s*1.7 + t*3.1 + SEED) + .5*sin(t*5.3 - s*1.1 + 2.*SEED);
+    float folds = sin(s*2.6 - t*3.4 + warp*1.6);
+    float side = sign(cos(t*1.55 + .35 + SEED*.2));
+    float h = (1. - s*s)*.5 + .26*folds*(1. - .6*s*s)*side;
+    float cov = 1. - smoothstep(.985, 1.0, abs(s));
+    return vec2(h, cov);
+  } else {
+    // Liquid pool: domain-warped field, thresholded into organic drops.
+    vec2 r = vec2(fbm(p*1.3 + SEED), fbm(p*1.3 + vec2(5.2,1.3) + SEED));
+    float f = fbm(p*1.1 + 1.8*r);
+    float edge = f - .5 + .32*(.75 - length(p*vec2(.9,1.)));
+    float h = smoothstep(0., .22, edge);
+    h = sqrt(h);
+    float cov = smoothstep(0., .006, edge);
+    return vec2(h*.9, cov);
+  }
+}
+
+vec3 env(vec3 r){
+  // Soft studio: bright overhead, warm floor bounce, two strip softboxes.
+  float sky = smoothstep(-.35, .85, r.y);
+  vec3 col = mix(vec3(.74,.735,.72), vec3(1.), sky);
+  col += .55*exp(-pow((r.x + .38)*7., 2.)) * smoothstep(-.2, .5, r.y);
+  col += .35*exp(-pow((r.x - .55)*9., 2.));
+  col -= .18*exp(-pow((r.y + .05)*6., 2.));
+  return col;
+}
+
+vec4 shade(vec2 frag){
+  vec2 p = (frag - .5*R) / R.y;
+  p.y = -p.y;
+  p *= ZOOM;
+  float e = 1.5 / R.y;
+  vec2 f0 = field(p);
+  if (f0.y <= 0.) return vec4(0.);
+  float hx = field(p + vec2(e,0)).x - field(p - vec2(e,0)).x;
+  float hy = field(p + vec2(0,e)).x - field(p - vec2(0,e)).x;
+  float k = MODE < .5 ? .16 : .12;
+  vec2 g = vec2(hx, hy) / (2.*e);
+  vec3 n = normalize(vec3(-g*k, 1.));
+  vec3 v = vec3(0,0,1);
+  vec3 l = normalize(vec3(-.55, .7, .65));
+  float dif = clamp(dot(n,l), 0., 1.);
+  vec3 r = reflect(-v, n);
+  float fres = pow(1. - clamp(dot(n,v),0.,1.), 3.);
+  vec3 pearl = vec3(.935,.93,.915);
+  // Two-faced ribbon: pearl on one side, accent satin on the reverse, revealed by the twist.
+  float face = smoothstep(-.12, .12, FLIP*cos(p.y*1.55 + .35 + SEED*.2));
+  vec3 base = mix(ACCENT, pearl, face);
+  // Faint warm/cool pearl shift with the surface angle (kept neutral: no blue/purple).
+  pearl *= mix(vec3(1.0,.99,.97), vec3(.97,.975,.975), .5 + .5*sin(n.x*7. + n.y*5.));
+  pearl = mix(base, pearl * (base / vec3(.935,.93,.915)), face);
+  vec3 col = pearl*(.62 + .45*dif);
+  vec3 refl = mix(env(r)*ACCENT*1.15, env(r), face);
+  col = mix(col, refl, (.35 + .5*fres)*mix(.55, 1., face));
+  float spec = pow(clamp(dot(r, l), 0., 1.), 60.);
+  col += .55*spec;
+  col = clamp(col, 0., 1.);
+  return vec4(col, f0.y);
+}
+
+void main(){
+  // 4x supersampling for clean edges and highlights.
+  vec4 acc = vec4(0.);
+  for (int i=0;i<2;i++) for (int j=0;j<2;j++) {
+    vec4 s = shade(gl_FragCoord.xy + (vec2(float(i),float(j)) - .5)*.5);
+    acc += vec4(s.rgb*s.a, s.a);
+  }
+  acc /= 4.;
+  vec3 col = acc.a > 0. ? acc.rgb/acc.a : vec3(0.);
+  gl_FragColor = vec4(col, acc.a);
+}`;
+function sh(t, s){ const o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); if(!gl.getShaderParameter(o, gl.COMPILE_STATUS)) { document.title = "ERR " + gl.getShaderInfoLog(o); throw 0; } return o; }
+const pr = gl.createProgram(); gl.attachShader(pr, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(pr); gl.useProgram(pr);
+const b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,3,-1,-1,3]), gl.STATIC_DRAW);
+const loc = gl.getAttribLocation(pr, "a"); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+gl.uniform2f(gl.getUniformLocation(pr, "R"), W, H);
+gl.uniform1f(gl.getUniformLocation(pr, "MODE"), MODE);
+gl.uniform1f(gl.getUniformLocation(pr, "SEED"), SEED);
+gl.uniform1f(gl.getUniformLocation(pr, "ZOOM"), +q.get("zoom") || 1);
+gl.uniform1f(gl.getUniformLocation(pr, "WIDTH"), +q.get("width") || 1);
+const hex = (q.get("accent") || "FF5A1F").replace("#", "");
+gl.uniform3f(gl.getUniformLocation(pr, "ACCENT"), ...[0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255));
+gl.uniform1f(gl.getUniformLocation(pr, "FLIP"), +q.get("flip") || 1);
+gl.clearColor(0,0,0,0); gl.clear(gl.COLOR_BUFFER_BIT);
+gl.drawArrays(gl.TRIANGLES, 0, 3);
+gl.finish();
+document.title = "done";
+window.exportWebp = (qual) => c.toDataURL("image/webp", qual);
+</script>
+</body></html>

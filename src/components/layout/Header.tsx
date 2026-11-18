@@ -71,7 +71,7 @@ export function Header() {
                     {link.label}
                     <span
                       aria-hidden="true"
-                      className="absolute inset-x-0 bottom-0.5 h-px origin-right scale-x-0 bg-ink transition-transform duration-500 ease-editorial group-hover/nav:origin-left group-hover/nav:scale-x-100 group-focus-visible/nav:scale-x-100"
+                      className="absolute inset-x-0 bottom-0.5 h-px origin-right scale-x-0 bg-ember transition-transform duration-500 ease-editorial group-hover/nav:origin-left group-hover/nav:scale-x-100 group-focus-visible/nav:scale-x-100"
                     />
                   </Link>
                 </li>

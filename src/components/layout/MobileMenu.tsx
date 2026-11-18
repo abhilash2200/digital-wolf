@@ -119,7 +119,7 @@ export function MobileMenu({
             </button>
           </div>
 
-          <div className="container-dw flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain pt-8 pb-[max(2rem,env(safe-area-inset-bottom))]">
+          <div data-lenis-prevent className="container-dw flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain pt-8 pb-[max(2rem,env(safe-area-inset-bottom))]">
             <nav aria-label="Mobile">
               <ul className="flex flex-col">
                 {NAV_LINKS.map((link, i) => (

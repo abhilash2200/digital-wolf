@@ -81,7 +81,7 @@ export function ContactForm({
   if (sent) {
     return (
       <div className={cn(isModal && "flex min-h-0 flex-1 flex-col")}>
-        <div className={bodyClass} role="status">
+        <div className={bodyClass} data-lenis-prevent={isModal ? "" : undefined} role="status">
           <p className="text-eyebrow text-ink-muted">Demo complete</p>
           <h3
             ref={successRef}
@@ -116,7 +116,7 @@ export function ContactForm({
       className={cn(isModal && "flex min-h-0 flex-1 flex-col")}
       aria-describedby={id("demo-note")}
     >
-      <div className={bodyClass}>
+      <div className={bodyClass} data-lenis-prevent={isModal ? "" : undefined}>
         {header}
 
         <div className={cn("grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2", header ? "mt-8" : undefined)}>

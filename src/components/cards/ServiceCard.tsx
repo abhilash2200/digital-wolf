@@ -81,7 +81,7 @@ export function ServiceCard({
           Discuss {service.title}
           <span
             aria-hidden="true"
-            className="absolute inset-x-0 -bottom-0.5 h-px origin-left scale-x-0 bg-ink transition-transform duration-500 ease-editorial group-hover/link:scale-x-100"
+            className="absolute inset-x-0 -bottom-0.5 h-px origin-left scale-x-0 bg-ember transition-transform duration-500 ease-editorial group-hover/link:scale-x-100"
           />
         </span>
         <ArrowUpRight

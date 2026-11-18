@@ -16,6 +16,7 @@
   --color-gloss: #ffffff; /* light glossy cards */
   --color-silver: #b8b8b8; /* restrained highlights */
   --color-line: #e3e3e0; /* dividers and borders */
+  --color-ember: #ff5a1f; /* the one highlight colour — use sparingly */
 
   /* Type */
   --font-sans: var(--font-general-sans), "Manrope", "Inter", ui-sans-serif,
@@ -44,6 +45,7 @@ body {
   --color-gloss: #ffffff;
   --color-silver: #b8b8b8;
   --color-line: #e3e3e0;
+  --color-ember: #ff5a1f;
 
   /* Layout tokens (mobile first) */
   --gutter-x: 20px;
@@ -138,8 +140,8 @@ body {
   }
 
   ::selection {
-    background-color: var(--color-ink);
-    color: var(--color-paper);
+    background-color: var(--color-ember);
+    color: var(--color-ink);
   }
 
   :focus-visible {
@@ -310,12 +312,6 @@ body {
   backdrop-filter: blur(24px) saturate(1.45);
 }
 
-/* Feathers the hero sculpture's (opaque) render into the ambient light. */
-@utility hero-feather {
-  -webkit-mask-image: radial-gradient(closest-side, #000 72%, transparent 100%);
-  mask-image: radial-gradient(closest-side, #000 72%, transparent 100%);
-}
-
 /* Full-width frosted bars (mobile header once scrolled, footer, trust strip). */
 @utility liquid-bar {
   background-color: rgb(248 248 246 / 0.62);
@@ -370,6 +366,170 @@ html[data-refract="on"] .liquid-glass {
   background-color: rgb(255 255 255 / 0.26);
   -webkit-backdrop-filter: var(--lens,) blur(1.5px) saturate(1.7) brightness(1.04);
   backdrop-filter: var(--lens,) blur(1.5px) saturate(1.7) brightness(1.04);
+}
+
+/* ------------------------------------------------------------------
+   Marquee (Trust logos): two identical tracks translate by one track
+   width + gap, so the loop is seamless. Edges fade out.
+   ------------------------------------------------------------------ */
+.marquee {
+  --marquee-gap: 0.75rem;
+  display: flex;
+  gap: var(--marquee-gap);
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+.marquee-track {
+  display: flex;
+  flex-shrink: 0;
+  gap: var(--marquee-gap);
+  min-width: 100%;
+  justify-content: space-around;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .marquee-track {
+    animation: marquee 34s linear infinite;
+  }
+
+  .marquee:hover .marquee-track,
+  .marquee:focus-within .marquee-track {
+    animation-play-state: paused;
+  }
+}
+
+/* Reduced motion: one static, wrapping row. */
+@media (prefers-reduced-motion: reduce) {
+  .marquee {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .marquee-track {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .marquee-track[aria-hidden="true"] {
+    display: none;
+  }
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(calc(-100% - var(--marquee-gap)));
+  }
+}
+
+/* ------------------------------------------------------------------
+   Hero entrance (CSS only, plays on first paint).
+   Headline words stay fully opaque — they slide up and un-blur — so the
+   LCP element is painted on frame one. --i is the stagger index.
+   ------------------------------------------------------------------ */
+/* Poster-scale headline: 40px on phones → ~116px on wide desktops. */
+.hero-title {
+  font-size: clamp(2.5rem, 7vw, 7.25rem);
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  font-weight: 500;
+  text-wrap: balance;
+}
+
+@media (min-width: 1024px) {
+  .hero-title {
+    text-wrap: nowrap;
+  }
+}
+
+.hero-word {
+  display: inline-block;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-word {
+    animation: hero-word 1.1s var(--ease-editorial) both;
+    animation-delay: calc(var(--i, 0) * 55ms + 80ms);
+  }
+
+  .hero-in {
+    animation: hero-in 1s var(--ease-editorial) both;
+    animation-delay: calc(var(--i, 0) * 70ms + 200ms);
+  }
+
+  /* Ribbon: unveiled top to bottom once, then drifts very slowly. */
+  .hero-ribbon {
+    animation:
+      hero-unveil 1.6s cubic-bezier(0.65, 0, 0.2, 1) 0.1s both,
+      hero-drift 14s ease-in-out 1.8s infinite alternate;
+  }
+
+}
+
+@keyframes hero-word {
+  from {
+    transform: translateY(0.42em) rotate(2deg);
+    filter: blur(8px);
+  }
+  to {
+    transform: none;
+    filter: blur(0);
+  }
+}
+
+@keyframes hero-unveil {
+  from {
+    clip-path: inset(0 0 100% 0);
+    transform: translateY(-3%);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+    transform: none;
+  }
+}
+
+@keyframes hero-drift {
+  from {
+    transform: none;
+  }
+  to {
+    transform: translate(-1.5%, 1.2%) rotate(-2deg);
+  }
+}
+
+@keyframes hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The ribbon runs off the bottom of its render: dissolve it into the page. */
+.hero-ribbon-fade {
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 52%, transparent 90%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 52%, transparent 90%);
+}
+
+/* The hero lens: a magnifying drop — stronger rim light, near-clear centre. */
+.hero-lens {
+  background-color: rgb(255 255 255 / 0.08);
+  box-shadow:
+    0 0 0 1px rgb(17 17 17 / 0.06),
+    inset 0 2px 1px rgb(255 255 255 / 0.95),
+    inset 0 -6px 14px rgb(17 17 17 / 0.08),
+    inset 0 0 26px rgb(255 255 255 / 0.55),
+    0 24px 50px -20px rgb(17 17 17 / 0.3);
+}
+
+html[data-refract="on"] .hero-lens {
+  background-color: rgb(255 255 255 / 0.04);
+  -webkit-backdrop-filter: var(--lens,) saturate(1.3) brightness(1.06);
+  backdrop-filter: var(--lens,) saturate(1.3) brightness(1.06);
 }
 
 /* ------------------------------------------------------------------

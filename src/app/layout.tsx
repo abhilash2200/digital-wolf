@@ -4,6 +4,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { EnquiryProvider } from "@/components/forms/EnquiryProvider";
 import { LiquidEffects } from "@/components/liquid/LiquidEffects";
+import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import { SITE } from "@/constants/site";
 import "./globals.css";
 
@@ -54,6 +55,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <main id="main">{children}</main>
           <Footer />
           <LiquidEffects />
+          <SmoothScroll />
         </EnquiryProvider>
       </body>
     </html>

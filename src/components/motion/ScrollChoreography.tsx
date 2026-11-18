@@ -60,6 +60,8 @@ export function ScrollChoreography() {
         });
 
         gsap.utils.toArray<HTMLElement>("[data-reveal-group]").forEach((group) => {
+          // data-reveal-group="mobile": desktop has its own choreography for it.
+          if (desktop && group.dataset.revealGroup === "mobile") return;
           const items = gsap.utils
             .toArray<HTMLElement>(group.querySelectorAll("[data-reveal-item]"))
             .filter((el) => !alreadyPassed(el));
@@ -97,6 +99,52 @@ export function ScrollChoreography() {
               onComplete: done,
             });
           });
+        }
+
+        // Hero hand-off (desktop): the headline lines slide apart in opposite
+        // directions while the sculpture sinks and turns away. Scrubbed, so it
+        // reverses on scroll up. The one choreographed moment on the page.
+        if (desktop) {
+          const hero = document.querySelector<HTMLElement>("[data-hero-visual]")?.closest("section");
+          if (hero) {
+            const out = { trigger: hero, start: "top top", end: "bottom top", scrub: 0.6 };
+            gsap.utils.toArray<HTMLElement>("[data-hero-line]", hero).forEach((line, i) => {
+              const dir = Number(line.dataset.heroLine) || 1;
+              gsap.to(line, { xPercent: dir * (9 + i * 3), ease: "none", scrollTrigger: out });
+            });
+            gsap.to("[data-hero-visual]", { y: 160, scale: 0.84, rotate: -6, ease: "none", scrollTrigger: out });
+          }
+        }
+
+        // Problems (desktop): pin the stage; the cards go from a tilted pile to a
+        // neat row (scattered → structured), then an ember line threads their
+        // nodes (connected). Scrubbed both ways. Markup is the final state.
+        if (desktop) {
+          const problems = document.querySelector<HTMLElement>("[data-problems]");
+          const stage = problems?.querySelector<HTMLElement>("[data-problems-stage]");
+          if (problems && stage) {
+            const cards = gsap.utils.toArray<HTMLElement>("[data-problem-card]", problems);
+            const nodes = problems.querySelectorAll("[data-problem-node]");
+            const line = problems.querySelector("[data-problems-line]");
+            // Pile toward the row's centre, each at its own tilt and height.
+            const pile = [
+              { xPercent: 118, y: 46, rotate: -9 },
+              { xPercent: 36, y: -18, rotate: 6 },
+              { xPercent: -38, y: 34, rotate: -4 },
+              { xPercent: -122, y: -10, rotate: 10 },
+            ];
+            const tl = gsap.timeline({
+              defaults: { ease: "power2.inOut" },
+              scrollTrigger: { trigger: stage, start: "top top", end: "+=130%", pin: true, scrub: 0.8, anticipatePin: 1, refreshPriority: 1 },
+            });
+            cards.forEach((card, i) => {
+              tl.from(card, { ...pile[i % pile.length], duration: 1 }, i * 0.06);
+            });
+            if (line) tl.from(line, { scaleX: 0, duration: 0.6, ease: "none" }, 1.05);
+            tl.from(nodes, { scale: 0.4, duration: 0.2, stagger: 0.14, ease: "back.out(3)" }, 1.05);
+            tl.to(nodes, { backgroundColor: "#ff5a1f", duration: 0.15, stagger: 0.14 }, 1.12);
+            tl.to({}, { duration: 0.25 }); // brief hold on the connected row before release
+          }
         }
 
         if (desktop) {
