@@ -162,10 +162,11 @@ export function ScrollChoreography() {
           });
         }
 
-        // Growth philosophy: four fields start apart and converge on one centre.
+        // Growth philosophy: four glass discs start apart and converge on one
+        // centre, where the ember core grows.
         // Desktop scrubs with scroll; mobile plays once (no long scroll sequences).
-        gsap.utils.toArray<SVGElement>("[data-vision]").forEach((vision) => {
-          const fields = vision.querySelectorAll<SVGGElement>("[data-vision-field]");
+        gsap.utils.toArray<HTMLElement>("[data-vision]").forEach((vision) => {
+          const fields = vision.querySelectorAll<HTMLElement>("[data-vision-field]");
           const core = vision.querySelector("[data-vision-core]");
           const spread = desktop ? 1 : 0.55;
           const tl = gsap.timeline({
@@ -178,9 +179,9 @@ export function ScrollChoreography() {
             tl.from(
               field,
               {
-                x: Number(field.dataset.dx) * spread,
-                y: Number(field.dataset.dy) * spread,
-                opacity: 0.35,
+                xPercent: Number(field.dataset.dx) * spread,
+                yPercent: Number(field.dataset.dy) * spread,
+                opacity: 0.5,
                 duration: desktop ? 1 : 1.2,
               },
               0,

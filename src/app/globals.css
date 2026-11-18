@@ -423,6 +423,53 @@ html[data-refract="on"] .liquid-glass {
   }
 }
 
+/* ------------------------------------------------------------------
+   Growth philosophy: four liquid-glass discs over the vision ribbon, with
+   an ember core. Hovering a discipline in the list lights its disc.
+   ------------------------------------------------------------------ */
+.vision-figure {
+  -webkit-mask-image: radial-gradient(closest-side, #000 80%, transparent);
+  mask-image: radial-gradient(closest-side, #000 80%, transparent);
+}
+
+/* The ribbon dissolves well inside the figure so it never shows an edge. */
+.vision-ribbon {
+  -webkit-mask-image: radial-gradient(closest-side, #000 45%, transparent 92%);
+  mask-image: radial-gradient(closest-side, #000 45%, transparent 92%);
+}
+
+.glass-disc {
+  isolation: isolate;
+  background:
+    radial-gradient(120% 120% at 30% 20%, rgb(255 255 255 / 0.5), rgb(255 255 255 / 0.08) 60%),
+    rgb(255 255 255 / 0.1);
+  border: 1px solid rgb(255 255 255 / 0.85);
+  box-shadow:
+    0 0 0 1px rgb(17 17 17 / 0.05),
+    inset 0 2px 1px rgb(255 255 255 / 0.9),
+    inset 0 -10px 24px rgb(17 17 17 / 0.05),
+    0 24px 50px -30px rgb(17 17 17 / 0.25);
+  -webkit-backdrop-filter: blur(10px) saturate(1.6);
+  backdrop-filter: blur(10px) saturate(1.6);
+  transition: box-shadow 400ms var(--ease-editorial), background-color 400ms ease;
+}
+
+.vision-core {
+  background: radial-gradient(closest-side, rgb(255 90 31 / 0.55), rgb(255 90 31 / 0.18) 55%, transparent);
+  filter: blur(6px);
+}
+
+.vision:has([data-cap="strategy"]:hover) [data-disc="strategy"],
+.vision:has([data-cap="technology"]:hover) [data-disc="technology"],
+.vision:has([data-cap="creativity"]:hover) [data-disc="creativity"],
+.vision:has([data-cap="performance"]:hover) [data-disc="performance"] {
+  background-color: rgb(255 255 255 / 0.4);
+  box-shadow:
+    0 0 0 2px var(--color-ember),
+    inset 0 2px 1px rgb(255 255 255 / 0.9),
+    0 30px 60px -30px rgb(255 90 31 / 0.45);
+}
+
 /* Services panel: the active service's copy settles in on change. */
 @media (prefers-reduced-motion: no-preference) {
   .svc-in {
