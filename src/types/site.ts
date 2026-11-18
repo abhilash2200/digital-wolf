@@ -65,6 +65,8 @@ export type CaseStudy = {
 
 export type Testimonial = {
   quote: string;
+  /** Layout stand-in, not a real quote: rendered with a visible "Sample" label. Remove before launch. */
+  sample?: boolean;
   name?: string;
   role?: string;
   company?: string;

@@ -239,7 +239,33 @@ export const WORK = {
 export const TESTIMONIALS = {
   eyebrow: "Client words",
   heading: "Good Work Builds Lasting Partnerships.",
-  items: [] as Testimonial[],
+  // Samples show the filled layout. Replace each with a genuine, approved quote
+  // (and drop `sample`) — never publish invented praise.
+  items: [
+    {
+      sample: true,
+      quote:
+        "Placeholder quote. A genuine client testimonial about working with Digital Wolf will go here, in the client's own words, once it has been approved for publication.",
+      name: "Client name",
+      role: "Role",
+      company: "Company",
+    },
+    {
+      sample: true,
+      quote: "Placeholder quote. A shorter approved testimonial will go here.",
+      name: "Client name",
+      role: "Role",
+      company: "Company",
+    },
+    {
+      sample: true,
+      quote:
+        "Placeholder quote. This slot shows how a longer testimonial wraps: a real client's words about the partnership, the work and what changed for their business will replace this text before launch.",
+      name: "Client name",
+      role: "Role",
+      company: "Company",
+    },
+  ] as Testimonial[],
 } as const;
 
 /* ------------------------------------------------------------------
