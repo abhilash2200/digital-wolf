@@ -470,6 +470,48 @@ html[data-refract="on"] .liquid-glass {
     0 30px 60px -30px rgb(255 90 31 / 0.45);
 }
 
+/* ------------------------------------------------------------------
+   Process staircase. The spark rides the tip of the line while it draws
+   (GSAP owns its transform/opacity; it stays hidden without JS or under
+   reduced motion). Hovering a stage traces the route up to it in ember.
+   ------------------------------------------------------------------ */
+/* Position, size and hidden state live on the element as utilities (it must
+   never become a grid item); this only adds the glow. */
+.process-spark {
+  box-shadow:
+    0 0 0 4px rgb(255 90 31 / 0.18),
+    0 0 18px 5px rgb(255 90 31 / 0.5);
+}
+
+@media (hover: hover) and (pointer: fine) and (min-width: 64rem) {
+  .process-fill {
+    transition: background-color 450ms var(--ease-editorial);
+  }
+
+  .process-num {
+    transition: font-weight 450ms var(--ease-editorial);
+  }
+
+  .process [data-process-node] {
+    transition: box-shadow 450ms var(--ease-editorial);
+  }
+
+  .process:has(> li:nth-of-type(1):hover) > li:nth-of-type(-n + 1) .process-fill,
+  .process:has(> li:nth-of-type(2):hover) > li:nth-of-type(-n + 2) .process-fill,
+  .process:has(> li:nth-of-type(3):hover) > li:nth-of-type(-n + 3) .process-fill,
+  .process:has(> li:nth-of-type(4):hover) > li:nth-of-type(-n + 4) .process-fill {
+    background-color: var(--color-ember);
+  }
+
+  .process > li:hover .process-num {
+    font-weight: 400;
+  }
+
+  .process > li:hover [data-process-node] {
+    box-shadow: 0 0 0 6px rgb(255 90 31 / 0.18);
+  }
+}
+
 /* Services panel: the active service's copy settles in on change. */
 @media (prefers-reduced-motion: no-preference) {
   .svc-in {

@@ -13,7 +13,7 @@ import { LIQUID_QUERY, createLiquidFilter } from "@/lib/liquid";
  *   data-reveal-group            container whose [data-reveal-item]s stagger in
  *   data-parallax="<px>"         desktop-only drift while scrolling past
  *   data-vision / data-vision-field / data-vision-core   converging diagram
- *   data-process / data-process-line / data-process-node timeline drawing
+ *   data-process / data-process-step|riser|tread|rail|node  staircase drawing
  *
  * Animation ownership: GSAP owns transform/opacity on these elements. Motion is
  * used only for the mobile menu; CSS only for hover/focus on other properties.
@@ -192,27 +192,64 @@ export function ScrollChoreography() {
           }
         });
 
-        // Process: draw the timeline, then light up each stage node.
+        // Process: one hairline climbs the staircase (riser, then tread) and
+        // each stage's node turns from a hollow ring to ember as it's reached.
+        // Desktop scrubs with scroll; mobile draws the rail once.
+        const unlit = { backgroundColor: "#f8f8f6", borderColor: "rgba(17,17,17,0.3)" };
+        // An ember spark rides the tip of the line; its coordinates are read
+        // from layout (relative to the <ol>) and re-read on every refresh.
         gsap.utils.toArray<HTMLElement>("[data-process]").forEach((process) => {
-          const line = process.querySelector("[data-process-line]");
-          const nodes = process.querySelectorAll("[data-process-node]");
-          const tl = gsap.timeline({
-            scrollTrigger: { trigger: process, start: "top 80%", once: true },
-          });
-          if (line) {
-            tl.from(line, {
-              scaleX: desktop ? 0 : 1,
-              scaleY: desktop ? 1 : 0,
-              transformOrigin: desktop ? "0% 50%" : "50% 0%",
-              duration: desktop ? 1.4 : 1,
-              ease: "power2.inOut",
+          const spark = process.querySelector<HTMLElement>("[data-process-spark]");
+          if (desktop) {
+            const steps = gsap.utils.toArray<HTMLElement>("[data-process-step]", process);
+            if (!steps.length || alreadyPassed(steps[0])) return;
+            const tl = gsap.timeline({
+              defaults: { ease: "none" },
+              // The climb runs up-screen against the scroll, so key it to the
+              // lowest step (Discover) rising through the viewport.
+              scrollTrigger: {
+                trigger: steps[0],
+                start: "top 85%",
+                end: "top 35%",
+                scrub: 0.6,
+                invalidateOnRefresh: true,
+              },
             });
+            if (spark) {
+              tl.set(spark, { x: () => steps[0].offsetLeft, y: () => steps[0].offsetTop }, 0);
+              tl.to(spark, { opacity: 1, duration: 0.1 }, 0);
+            }
+            steps.forEach((step) => {
+              const riser = step.querySelector<HTMLElement>("[data-process-riser]");
+              const tread = step.querySelector("[data-process-tread]");
+              const node = step.querySelector("[data-process-node]");
+              const x = () => step.offsetLeft;
+              const y = () => step.offsetTop;
+              if (riser) {
+                tl.from(riser, { scaleY: 0, duration: 0.45 });
+                if (spark) tl.to(spark, { x, y, duration: 0.45 }, "<");
+              }
+              if (node) tl.from(node, { ...unlit, scale: 0.7, duration: 0.12 });
+              if (tread) {
+                tl.from(tread, { scaleX: 0, duration: 1 });
+                if (spark) tl.to(spark, { x: () => step.offsetLeft + step.offsetWidth, y, duration: 1 }, "<");
+              }
+            });
+            if (spark) tl.to(spark, { opacity: 0, scale: 0.4, duration: 0.15 });
+          } else {
+            const rail = process.querySelector<HTMLElement>("[data-process-rail]");
+            const track = rail?.parentElement;
+            const nodes = process.querySelectorAll("[data-process-node]");
+            const tl = gsap.timeline({ scrollTrigger: { trigger: process, start: "top 80%", once: true } });
+            if (rail) tl.from(rail, { scaleY: 0, duration: 1.2, ease: "power2.inOut" });
+            if (spark && track) {
+              tl.set(spark, { x: track.offsetLeft, y: track.offsetTop }, 0);
+              tl.to(spark, { opacity: 1, duration: 0.15 }, 0);
+              tl.to(spark, { y: track.offsetTop + track.offsetHeight, duration: 1.2, ease: "power2.inOut" }, 0);
+              tl.to(spark, { opacity: 0, scale: 0.4, duration: 0.3 });
+            }
+            tl.from(nodes, { ...unlit, duration: 0.3, stagger: 0.25 }, 0.15);
           }
-          tl.from(
-            nodes,
-            { scale: 0.2, opacity: 0, duration: 0.5, ease: "back.out(2)", stagger: desktop ? 0.28 : 0.2 },
-            0.2,
-          );
         });
 
         return () => liquidCleanup.forEach((fn) => fn());

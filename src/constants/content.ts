@@ -165,7 +165,6 @@ export const PHILOSOPHY = {
 export const SECTION_ART = {
   problems: "/images/art/sec-problems.webp",
   approach: "/images/art/sec-approach.webp",
-  process: "/images/art/sec-process.webp",
   contact: "/images/art/sec-contact.webp",
 } as const;
 
