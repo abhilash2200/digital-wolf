@@ -161,13 +161,6 @@ export const PHILOSOPHY = {
 /* ------------------------------------------------------------------
    Process (spec §5.7) — approved stage copy.
    ------------------------------------------------------------------ */
-/** Abstract section artwork (decorative). */
-export const SECTION_ART = {
-  problems: "/images/art/sec-problems.webp",
-  approach: "/images/art/sec-approach.webp",
-  contact: "/images/art/sec-contact.webp",
-} as const;
-
 export const PROCESS = {
   eyebrow: "Process",
   heading: "A Clear Strategy. A Smarter Way Forward.",
@@ -319,5 +312,7 @@ export const FAQ = {
    ------------------------------------------------------------------ */
 export const CONTACT = {
   heading: "Let’s Make Your Next Move Matter.",
+  /** Generated ribbon (scripts/art/pearl-ribbon.html: seed 2.2, zoom 1.8, width .8, 1200×1800). */
+  art: "/images/art/contact-ribbon-ember.webp",
   body: "Tell us about your business, your challenges and where you want to go. Let’s explore how Digital Wolf can help you move forward.",
 } as const;

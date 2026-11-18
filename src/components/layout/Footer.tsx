@@ -29,7 +29,7 @@ export function Footer() {
 
         {hasContact && (
           <div className="col-span-2 md:col-span-6 lg:col-span-2">
-            <p className="text-eyebrow text-ink-muted">Contact</p>
+            <p className="text-[0.9375rem] text-ink-muted">Contact</p>
             <ul className="mt-5 flex flex-col gap-2 text-[0.9375rem]">
               {SITE.email && (
                 <li>
@@ -79,7 +79,7 @@ function FooterNav({
 }) {
   return (
     <nav aria-label={`Footer ${title.toLowerCase()}`} className={className}>
-      <p className="text-eyebrow text-ink-muted">{title}</p>
+      <p className="text-[0.9375rem] text-ink-muted">{title}</p>
       <ul className="mt-5 flex flex-col gap-1">
         {links.map((link) => (
           <li key={link.label}>

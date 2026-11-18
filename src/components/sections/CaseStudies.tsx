@@ -48,7 +48,7 @@ export function CaseStudies() {
               project={second}
               index={2}
               aspect="aspect-[4/5]"
-              feather="work-feather-y"
+              feather="art-feather-y"
               sizes="(min-width: 1024px) 40vw, 100vw"
               className="lg:col-span-5"
             />
@@ -58,7 +58,7 @@ export function CaseStudies() {
               project={third}
               index={3}
               aspect="aspect-[4/3]"
-              feather="work-feather"
+              feather="art-feather-x"
               sizes="(min-width: 1024px) 50vw, 100vw"
               className="lg:col-span-6 lg:col-start-7"
             />
@@ -162,7 +162,7 @@ function ProjectFigure({
   index: number;
   aspect: string;
   /** Which way the concept ribbon runs off its frame, so its ends fade, not cut. */
-  feather: "work-feather" | "work-feather-y";
+  feather: "art-feather-x" | "art-feather-y";
   sizes: string;
   className?: string;
 }) {
@@ -213,14 +213,14 @@ function ProjectVisual({
   project,
   sizes,
   featured = false,
-  feather = "work-feather",
+  feather = "art-feather-x",
   className,
 }: {
   project: CaseStudy;
   sizes: string;
   /** The wide ribbon: unfurled on scroll. */
   featured?: boolean;
-  feather?: "work-feather" | "work-feather-y";
+  feather?: "art-feather-x" | "art-feather-y";
   className?: string;
 }) {
   const concept = !project.image;

@@ -512,14 +512,14 @@ html[data-refract="on"] .liquid-glass {
   }
 }
 
-/* Selected work: concept ribbons fade out where they leave their frame
-   instead of being cut by it. */
-.work-feather {
+/* Generated ribbons fade out where they leave their frame instead of being
+   cut by it (selected work, contact). */
+.art-feather-x {
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
   mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
 }
 
-.work-feather-y {
+.art-feather-y {
   -webkit-mask-image: linear-gradient(transparent, #000 12%, #000 86%, transparent);
   mask-image: linear-gradient(transparent, #000 12%, #000 86%, transparent);
 }
