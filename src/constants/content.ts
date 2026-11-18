@@ -219,11 +219,17 @@ export const WORK = {
     { id: "project-2", ...EMPTY_CASE },
     { id: "project-3", ...EMPTY_CASE },
   ] satisfies CaseStudy[],
-  /** Abstract concept artwork shown until real project imagery is supplied. */
+  /**
+   * Generated ribbon artwork (scripts/art/pearl-ribbon.html) shown, labelled as
+   * concept art, until real project imagery is supplied. Featured: seed 1.2,
+   * zoom 2.6, width .7, rendered 1000×2400 and turned 90° anticlockwise; project-2:
+   * seed .8, zoom 1.8, width .8 at 1200×1500; project-3: seed .6, zoom 2.4,
+   * width .7 at 1200×1600, turned 90° clockwise.
+   */
   conceptArt: {
-    featured: "/images/art/case-1.webp",
-    "project-2": "/images/art/case-2.webp",
-    "project-3": "/images/art/case-3.webp",
+    featured: "/images/art/work-featured-ember.webp",
+    "project-2": "/images/art/work-2-ember.webp",
+    "project-3": "/images/art/work-3-ember.webp",
   } as Record<string, string>,
 } as const;
 
