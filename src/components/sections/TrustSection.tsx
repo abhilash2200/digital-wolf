@@ -10,7 +10,7 @@ export function TrustSection() {
     <section
       id={ANCHORS.about}
       aria-labelledby="trust-heading"
-      className="border-y border-line bg-surface"
+      className="liquid-bar border-y border-white/70"
     >
       <div className="container-dw grid grid-cols-1 gap-10 py-14 md:py-16 lg:grid-cols-12 lg:items-center lg:gap-x-6 lg:py-20">
         <div className="lg:col-span-4" data-reveal>
@@ -32,7 +32,7 @@ export function TrustSection() {
         >
           {hasLogos
             ? TRUST.logos.map((logo) => (
-                <li key={logo.name} className="flex h-24 items-center justify-center bg-surface px-6 md:h-28">
+                <li key={logo.name} className="flex h-24 items-center justify-center bg-white/45 px-6 md:h-28">
                   <Image
                     src={logo.src}
                     alt={logo.name}
@@ -45,7 +45,7 @@ export function TrustSection() {
             : Array.from({ length: TRUST.placeholderSlots }, (_, i) => (
                 <li
                   key={i}
-                  className="flex h-24 items-center justify-center bg-surface px-4 md:h-28"
+                  className="flex h-24 items-center justify-center bg-white/45 px-4 md:h-28"
                 >
                   <span className="text-eyebrow text-center text-ink-muted/80">
                     Client logo {String(i + 1).padStart(2, "0")}

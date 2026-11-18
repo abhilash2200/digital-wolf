@@ -28,7 +28,7 @@ export default function ContactPage() {
         </div>
 
         <div className="lg:col-span-7">
-          <div className="rounded-lg border border-line bg-surface/60 p-5 sm:p-8 md:p-10">
+          <div className="rounded-lg border glass-panel p-5 sm:p-8 md:p-10">
             {/* Reading ?service= needs the browser; the fallback renders the same form unselected. */}
             <Suspense fallback={<ContactForm variant="page" />}>
               <ContactPageForm />

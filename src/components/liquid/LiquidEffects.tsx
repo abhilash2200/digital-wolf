@@ -1,10 +1,8 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
   LIQUID_QUERY,
-  createLensFilter,
   createLiquidFilter,
   supportsLiquidRefraction,
   type LiquidFilter,
@@ -13,11 +11,10 @@ import {
 /**
  * Desktop-only liquid layer (fine pointer, motion allowed):
  *  - sets html[data-liquid] (+ [data-refract] on Chromium) so CSS can opt in
- *  - real refraction lenses for every [data-liquid-glass] element
- *  - cursor-following specular highlight on glass
+ *  - cursor-following specular highlight on [data-liquid-glass] elements
  *  - liquid ripple when hovering [data-liquid-media]
- *  - fluid cursor trail (lazy-loaded after idle)
- * Phones, tablets and reduced-motion users get none of it.
+ * Refraction lenses are attached per element by `useLiquidLens`, after that
+ * element hydrates. Phones, tablets and reduced-motion users get none of it.
  */
 export function LiquidEffects() {
   useEffect(() => {
@@ -43,43 +40,8 @@ export function LiquidEffects() {
 
 function enable() {
   const html = document.documentElement;
-  const refract = supportsLiquidRefraction();
   html.dataset.liquid = "on";
-  if (refract) html.dataset.refract = "on";
-
-  // --- Refraction lenses, kept in sync with each glass element's size ---
-  const lenses = new Map<HTMLElement, ReturnType<typeof createLensFilter>>();
-  const resize = new ResizeObserver((entries) => {
-    for (const entry of entries) lenses.get(entry.target as HTMLElement)?.rebuild();
-  });
-  const scan = () => {
-    if (!refract) return;
-    document.querySelectorAll<HTMLElement>("[data-liquid-glass]").forEach((node) => {
-      if (lenses.has(node)) return;
-      const lens = createLensFilter(node, {
-        bezel: Number(node.dataset.liquidBezel) || 22,
-        strength: Number(node.dataset.liquidStrength) || 38,
-      });
-      node.style.setProperty("--lens", `url(#${lens.id})`);
-      lenses.set(node, lens);
-      resize.observe(node);
-    });
-    for (const [node, lens] of lenses) {
-      if (node.isConnected) continue;
-      lens.remove();
-      resize.unobserve(node);
-      lenses.delete(node);
-    }
-  };
-  const hasIdle = typeof window.requestIdleCallback === "function";
-  const firstScan = hasIdle ? window.requestIdleCallback(scan, { timeout: 1500 }) : 0;
-  if (!hasIdle) scan();
-  let scanFrame = 0;
-  const mutations = new MutationObserver(() => {
-    cancelAnimationFrame(scanFrame);
-    scanFrame = requestAnimationFrame(scan);
-  });
-  mutations.observe(document.body, { childList: true, subtree: true });
+  if (supportsLiquidRefraction()) html.dataset.refract = "on";
 
   // --- Specular highlight that follows the cursor across glass ---
   const onPointerMove = (event: PointerEvent) => {
@@ -128,17 +90,7 @@ function enable() {
   return () => {
     delete html.dataset.liquid;
     delete html.dataset.refract;
-    mutations.disconnect();
-    resize.disconnect();
-    cancelAnimationFrame(scanFrame);
-    for (const [node, lens] of lenses) {
-      node.style.removeProperty("--lens");
-      lens.remove();
-    }
     document.removeEventListener("pointermove", onPointerMove);
     document.removeEventListener("pointerover", onPointerOver);
-    if (hasIdle) {
-      window.cancelIdleCallback(firstScan);
-    }
   };
 }

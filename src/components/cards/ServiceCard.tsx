@@ -43,7 +43,7 @@ export function ServiceCard({
           sizes="(min-width: 1024px) 34vw, (min-width: 768px) 50vw, 100vw"
           className="object-cover transition-transform duration-[1.2s] ease-editorial group-hover/card:scale-[1.04] motion-reduce:transition-none"
         />
-        <p className="text-eyebrow absolute top-4 left-4 tabular-nums rounded-full border border-line bg-surface/90 px-2.5 py-1 text-ink backdrop-blur-sm sm:left-6">
+        <p className="text-eyebrow absolute top-4 left-4 tabular-nums liquid-glass rounded-full px-2.5 py-1 text-ink sm:left-6">
           {String(index + 1).padStart(2, "0")}
         </p>
       </div>

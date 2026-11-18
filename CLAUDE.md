@@ -13,10 +13,10 @@ A polished, conversion-focused marketing site for **Digital Wolf**, a **Full-Ser
 - **Don't claim checks passed unless you ran them.** If a lint, typecheck or build script is missing, say so.
 
 ## Project location & commands
-- The app is in `digital-wolf/` and uses **npm** (`package-lock.json`). Next 16.4.6 with Turbopack, React 19.3, Tailwind v4 (CSS-first `@theme` in `src/app/globals.css`, no tailwind config file).
+- The app is at the repo root and uses **npm** (`package-lock.json`). Next 16.4.6 with Turbopack, React 19.3, Tailwind v4 (CSS-first `@theme` in `src/app/globals.css`, no tailwind config file).
 - `npm run dev` · `npm run build` · `npm run lint` · `npm run typecheck` (runs `next typegen && tsc`, because `LayoutProps`/`PageProps` are generated types).
 - Cache Components and Partial Prefetching are on (scaffold defaults). Routes are wrapped in React `<Activity>`, so effects must clean up fully.
-- `digital-wolf/AGENTS.md`: this Next version differs from training data. Read `node_modules/next/dist/docs/` before using Next APIs.
+- `AGENTS.md`: this Next version differs from training data. Read `node_modules/next/dist/docs/` before using Next APIs.
 - Design tokens are Tailwind theme colours (`paper`, `surface`, `ink`, `ink-muted`, `mist`, `gloss`, `silver`, `line`) plus custom utilities (`container-dw`, `section-y`, `text-display|section|card|body|eyebrow`, `gloss-card`). Use `cn()` from `@/lib/cn`, which knows the custom text utilities.
 - Approved copy lives in `src/constants/site.ts`.
 - The font is General Sans (variable, self-hosted in `src/fonts`, ITF Free Font License).
@@ -47,8 +47,8 @@ A polished, conversion-focused marketing site for **Digital Wolf**, a **Full-Ser
   - Lighthouse at the end of Phase 7: performance 97–100, accessibility, best practices and SEO all 100.
 - Liquid layer (added after Phase 7, at the user's request). It runs on desktop only, with a fine pointer and motion allowed (`LIQUID_QUERY` in `lib/liquid.ts`):
   - `LiquidEffects` (in the layout) sets `html[data-liquid]`, plus `[data-refract]` on Chromium.
-  - It builds SVG refraction lenses for `[data-liquid-glass]` elements (the glass header pill and the `glass`/`glassDark` button variants), which use `backdrop-filter: var(--lens)`.
-  - It adds a hover ripple to `[data-liquid-media]` and lazy-loads `FluidCursor`, a WebGL2 fluid trail. Its shaders compile in parallel; never query programs early, because that blocked the main thread for about 0.7s.
+  - Refraction lenses for `[data-liquid-glass]` elements (the header pill and the `glass` button variant) are attached per element by `useLiquidLens` (hooks), *after that element hydrates*. Never write attributes/styles onto server-rendered DOM from a global scan: that caused a hydration mismatch.
+  - It adds a hover ripple to `[data-liquid-media]`. The FluidCursor WebGL trail was removed (the file is a stub).
   - `ScrollChoreography` melts headings and artwork into place with per-element SVG filters, removed afterwards. Compare filter strings by id, because browsers normalise `url(#x)` to `url("#x")`.
   - `SmartLink` tags route changes with the `liquid` transition type; `PageTransition` (in each page) and CSS in `globals.css` play the liquid wipe.
   - Don't use `content-visibility: auto` on sections: tested, it broke anchor scrolling, reveals and focus scrolling.
@@ -93,7 +93,7 @@ Suggested structure (adapt as needed): `src/app`, `src/components/{layout,sectio
 | Silver | `#B8B8B8` | Highlights |
 | Border grey | `#E3E3E0` | Dividers |
 
-- The light theme dominates. Dark glossy cards provide emphasis and should not turn the site into a dark theme.
+- The site is **fully light** with a light liquid-glass style (user decision, Nov 2026; supersedes the spec's dark gloss cards). `liquid-ambient` (fixed warm-neutral wash in the layout; body background is transparent) sits behind translucent surfaces: `gloss-card` (cards), `glass-panel` (panels), `liquid-bar` (full-width bars), `liquid-glass` (pills/buttons). `hero-feather` masks the hero render into the background. Elements with `-z-*` children need a stacking-context parent or they paint under the ambient layer.
 - Fonts: General Sans or Neue Montreal, falling back to Manrope or Inter. Subset fonts and keep weights minimal.
 - Type sizes (desktop / mobile): hero 76–88 / 38–44px, section heading 48–64 / 32–38px, card heading 20–26 / 18–22px, body 15–17 / 14–16px. Use fluid type.
 - Layout: max content width 1280px. Side padding 64 / 32 / 20px. Grid 12 / 6 / 1–2 columns. Gutter 24 / 20 / 14–16px. Header height 84 / 76 / 64–68px. Section spacing 120–160 / 90–110 / 64–80px.

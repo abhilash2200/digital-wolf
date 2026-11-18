@@ -64,7 +64,7 @@ function ConnectedVision() {
   ] as const;
 
   return (
-    <figure className="relative mx-auto aspect-square w-full max-w-[560px] overflow-hidden rounded-[6px] border border-line bg-surface shadow-[0_10px_30px_-10px_rgb(17_17_17/0.05)]">
+    <figure className="relative mx-auto aspect-square w-full max-w-[560px] overflow-hidden rounded-[6px] border glass-panel">
       {/* Four liquid forms merging into one — sits beneath the converging fields. */}
       <div data-liquid-media className="absolute inset-0 -z-10 opacity-25">
         <Image

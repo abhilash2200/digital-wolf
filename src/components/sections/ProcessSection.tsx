@@ -4,7 +4,7 @@ import { PROCESS, SECTION_ART } from "@/constants/content";
 
 export function ProcessSection() {
   return (
-    <section aria-labelledby="process-heading" className="section-y bg-mist/60">
+    <section aria-labelledby="process-heading" className="section-y liquid-bar">
       <div className="container-dw">
         <div className="grid grid-cols-1 items-end gap-8 lg:grid-cols-12 lg:gap-x-6">
           <SectionHeading

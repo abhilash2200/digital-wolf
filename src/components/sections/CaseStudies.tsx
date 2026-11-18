@@ -57,7 +57,7 @@ function FeaturedProject({ project }: { project: CaseStudy }) {
   return (
     <article
       aria-labelledby={`case-${project.id}`}
-      className="grid grid-cols-1 overflow-hidden rounded-[6px] border border-line bg-surface lg:grid-cols-12"
+      className="grid grid-cols-1 overflow-hidden rounded-[6px] border glass-panel lg:grid-cols-12"
     >
       <ProjectVisual project={project} sizes="(min-width: 1024px) 60vw, 100vw" className="aspect-[16/10] lg:col-span-7 lg:aspect-auto lg:min-h-[520px]" />
 
@@ -87,7 +87,7 @@ function ProjectCard({ project, index }: { project: CaseStudy; index: number }) 
     <article
       data-reveal-item
       aria-labelledby={`case-${project.id}`}
-      className="flex flex-col overflow-hidden rounded-[6px] border border-line bg-surface"
+      className="flex flex-col overflow-hidden rounded-[6px] border glass-panel"
     >
       <ProjectVisual project={project} sizes="(min-width: 768px) 50vw, 100vw" className="aspect-[16/10]" />
       <div className="flex flex-1 flex-col p-6 sm:p-8">
@@ -156,7 +156,7 @@ function ProjectVisual({
         />
       )}
       {concept && (
-        <PlaceholderTag className="relative bg-paper/80 backdrop-blur-sm">
+        <PlaceholderTag className="relative liquid-glass">
           Concept artwork · project imagery pending
         </PlaceholderTag>
       )}

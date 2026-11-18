@@ -11,7 +11,7 @@ export function ContactSection() {
       className="pb-(--section-y)"
     >
       <div className="container-dw">
-        <div data-reveal className="relative overflow-hidden rounded-[6px] border border-line bg-surface shadow-[0_10px_30px_-10px_rgb(17_17_17/0.05)]">
+        <div data-reveal className="relative overflow-hidden rounded-[6px] border glass-panel">
           {/* One confident drop — the next move. Banner on mobile, backdrop from desktop. */}
           <div
             data-liquid-media

@@ -94,7 +94,7 @@ export function HeroVisual({ className }: { className?: string }) {
   return (
     <div
       ref={containerRef}
-      className={cn("relative isolate overflow-hidden", className)}
+      className={cn("hero-feather relative isolate overflow-hidden", className)}
     >
       {/* Static fallback: shown before WebGL is ready, and instead of it when unsupported. */}
       <Image

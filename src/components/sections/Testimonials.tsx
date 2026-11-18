@@ -47,7 +47,7 @@ export function Testimonials() {
 function Quote({ testimonial }: { testimonial: Testimonial }) {
   const attribution = [testimonial.role, testimonial.company].filter(Boolean).join(", ");
   return (
-    <figure className="flex h-full flex-col justify-between rounded-[6px] border border-line bg-surface p-6 sm:p-10">
+    <figure className="flex h-full flex-col justify-between rounded-[6px] border glass-panel p-6 sm:p-10">
       <blockquote className="text-[1.25rem] leading-snug tracking-[-0.01em] text-ink md:text-[1.5rem]">
         “{testimonial.quote}”
       </blockquote>
@@ -69,7 +69,7 @@ function Quote({ testimonial }: { testimonial: Testimonial }) {
 /** Shown until genuine, approved testimonials are supplied. Never fake quotes. */
 function EmptyState() {
   return (
-    <div className="flex min-h-[280px] flex-col justify-between rounded-[6px] border border-dashed border-silver p-6 sm:p-10">
+    <div className="flex min-h-[280px] flex-col justify-between rounded-[6px] border border-dashed border-silver bg-white/35 p-6 backdrop-blur-xl sm:p-10">
       <span aria-hidden="true" className="text-[5rem] leading-none text-ink/15">
         “
       </span>

@@ -15,7 +15,7 @@ export function Footer() {
   const hasContact = Boolean(SITE.email) || SITE.socials.length > 0;
 
   return (
-    <footer className="border-t border-line bg-surface">
+    <footer className="liquid-bar border-t border-white/70">
       <div className="container-dw grid grid-cols-2 gap-x-6 gap-y-12 py-14 md:grid-cols-6 md:py-20 lg:grid-cols-12 lg:gap-x-6">
         <div className="col-span-2 md:col-span-6 lg:col-span-5">
           <Wordmark />
