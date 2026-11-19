@@ -1,9 +1,12 @@
+"use client";
+
 import { SmartLink as Link } from "@/components/ui/SmartLink";
 import { ArrowRight } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { useLiquidLens } from "@/hooks/useLiquidLens";
 
-type Variant = "primary" | "secondary" | "inverse" | "ghost" | "glass" | "glassDark";
+type Variant = "primary" | "secondary" | "inverse" | "ghost" | "glass";
 type Size = "md" | "lg";
 
 const base =
@@ -11,17 +14,14 @@ const base =
 
 const variants: Record<Variant, string> = {
   primary:
-    "bg-ink text-paper hover:bg-[#2a2a2a] shadow-[inset_0_1px_0_rgb(255_255_255/0.12)]",
+    "bg-ink text-paper hover:bg-ember hover:text-ink shadow-[inset_0_1px_0_rgb(255_255_255/0.12)]",
   secondary:
     "border border-ink/20 text-ink hover:border-ink hover:bg-ink/[0.03]",
   inverse: "bg-paper text-ink hover:bg-white",
   ghost: "text-ink hover:text-ink-muted px-0",
   // Liquid glass (refracts on Chromium desktop; frosted elsewhere).
   glass: "liquid-glass text-ink",
-  glassDark: "liquid-glass-dark text-white",
 };
-
-const GLASS: Variant[] = ["glass", "glassDark"];
 
 const sizes: Record<Size, string> = {
   md: "h-11 px-5 text-[0.9375rem]",
@@ -61,10 +61,13 @@ export function ButtonLink({
   className,
   children,
   ...props
-}: CommonProps & Omit<ComponentProps<typeof Link>, "className" | "children">) {
+}: CommonProps & Omit<ComponentProps<typeof Link>, "className" | "children" | "ref">) {
+  const glass = variant === "glass";
+  const lensRef = useLiquidLens<HTMLAnchorElement>(glass);
   return (
     <Link
-      data-liquid-glass={GLASS.includes(variant) ? "" : undefined}
+      ref={lensRef}
+      data-liquid-glass={glass ? "" : undefined}
       className={cn(base, variants[variant], sizes[size], className)}
       {...props}
     >
@@ -82,11 +85,14 @@ export function Button({
   children,
   type = "button",
   ...props
-}: CommonProps & Omit<ComponentProps<"button">, "className" | "children">) {
+}: CommonProps & Omit<ComponentProps<"button">, "className" | "children" | "ref">) {
+  const glass = variant === "glass";
+  const lensRef = useLiquidLens<HTMLButtonElement>(glass);
   return (
     <button
+      ref={lensRef}
       type={type}
-      data-liquid-glass={GLASS.includes(variant) ? "" : undefined}
+      data-liquid-glass={glass ? "" : undefined}
       className={cn(base, variants[variant], sizes[size], className)}
       {...props}
     >

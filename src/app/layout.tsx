@@ -4,6 +4,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { EnquiryProvider } from "@/components/forms/EnquiryProvider";
 import { LiquidEffects } from "@/components/liquid/LiquidEffects";
+import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import { SITE } from "@/constants/site";
 import "./globals.css";
 
@@ -41,10 +42,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${generalSans.variable} antialiased light`}
       style={{ colorScheme: "light", backgroundColor: "#F8F8F6", color: "#111111" }}
     >
-      <body
-        className="min-h-svh bg-paper text-ink"
-        style={{ backgroundColor: "#F8F8F6", color: "#111111" }}
-      >
+      <body className="min-h-svh text-ink">
+        <div aria-hidden="true" className="liquid-ambient" />
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-60 focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-paper"
@@ -56,6 +55,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <main id="main">{children}</main>
           <Footer />
           <LiquidEffects />
+          <SmoothScroll />
         </EnquiryProvider>
       </body>
     </html>

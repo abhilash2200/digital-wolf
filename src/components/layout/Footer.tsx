@@ -15,7 +15,7 @@ export function Footer() {
   const hasContact = Boolean(SITE.email) || SITE.socials.length > 0;
 
   return (
-    <footer className="border-t border-line bg-surface">
+    <footer className="liquid-bar border-t border-white/70">
       <div className="container-dw grid grid-cols-2 gap-x-6 gap-y-12 py-14 md:grid-cols-6 md:py-20 lg:grid-cols-12 lg:gap-x-6">
         <div className="col-span-2 md:col-span-6 lg:col-span-5">
           <Wordmark />
@@ -29,7 +29,7 @@ export function Footer() {
 
         {hasContact && (
           <div className="col-span-2 md:col-span-6 lg:col-span-2">
-            <p className="text-eyebrow text-ink-muted">Contact</p>
+            <p className="text-[0.9375rem] text-ink-muted">Contact</p>
             <ul className="mt-5 flex flex-col gap-2 text-[0.9375rem]">
               {SITE.email && (
                 <li>
@@ -79,7 +79,7 @@ function FooterNav({
 }) {
   return (
     <nav aria-label={`Footer ${title.toLowerCase()}`} className={className}>
-      <p className="text-eyebrow text-ink-muted">{title}</p>
+      <p className="text-[0.9375rem] text-ink-muted">{title}</p>
       <ul className="mt-5 flex flex-col gap-1">
         {links.map((link) => (
           <li key={link.label}>

@@ -1,17 +1,25 @@
+import Image from "next/image";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ANCHORS } from "@/constants/site";
-import Image from "next/image";
-import { PHILOSOPHY, SECTION_ART } from "@/constants/content";
+import { PHILOSOPHY } from "@/constants/content";
 
+/**
+ * "Different Disciplines. One Connected Vision." Four liquid-glass discs —
+ * one per discipline — overlap over a pearl/ember ribbon whose twist sits
+ * exactly at the shared centre (scripts/art/pearl-ribbon.html, seed 6.104). On scroll they
+ * converge (ScrollChoreography: data-vision*). Hovering a discipline in the
+ * list lights its disc (pure CSS :has(), see .vision in globals.css).
+ * Without JS / reduced motion the diagram renders converged.
+ */
 export function GrowthPhilosophy() {
   return (
     <section
       id={ANCHORS.approach}
       aria-labelledby="philosophy-heading"
-      className="section-y"
+      className="vision section-y"
     >
-      <div className="container-dw grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-x-6">
-        <div className="lg:col-span-6 lg:order-2 lg:pl-8">
+      <div className="container-dw grid grid-cols-1 gap-12 lg:grid-cols-12 lg:items-center lg:gap-x-6">
+        <div className="lg:order-2 lg:col-span-5 lg:col-start-8">
           <SectionHeading
             id="philosophy-heading"
             eyebrow={PHILOSOPHY.eyebrow}
@@ -19,119 +27,92 @@ export function GrowthPhilosophy() {
             intro={PHILOSOPHY.intro}
           />
 
-          <ol data-reveal-group className="mt-12 grid grid-cols-1 border-t border-line sm:grid-cols-2 lg:grid-cols-1">
-            {PHILOSOPHY.capabilities.map((capability, i) => (
+          <ul data-reveal-group className="mt-10 border-t border-line">
+            {PHILOSOPHY.capabilities.map((capability) => (
               <li
                 key={capability.id}
                 data-reveal-item
-                className="grid grid-cols-[2.5rem_1fr] gap-x-2 border-b border-line py-6 sm:odd:pr-6 lg:odd:pr-0"
+                data-cap={capability.id}
+                className="group border-b border-line py-5"
               >
-                <span className="text-eyebrow pt-1.5 tabular-nums text-ink-muted">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <div>
-                  <h3 className="text-card text-ink">{capability.title}</h3>
-                  <p className="mt-2 max-w-[44ch] text-[0.9375rem] leading-relaxed text-ink-muted">
-                    {capability.body}
-                  </p>
-                </div>
+                <h3 className="flex items-center text-card text-ink">
+                  <span
+                    aria-hidden="true"
+                    className="mr-0 h-0.5 w-0 rounded-full bg-ember transition-[width,margin] duration-500 ease-editorial group-hover:mr-3 group-hover:w-6"
+                  />
+                  {capability.title}
+                </h3>
+                <p className="mt-2 max-w-[44ch] text-[0.9375rem] leading-relaxed text-ink-muted">
+                  {capability.body}
+                </p>
               </li>
             ))}
-          </ol>
+          </ul>
         </div>
 
-        <div className="lg:col-span-6 lg:order-1">
-          <div className="lg:sticky lg:top-[calc(var(--header-h)+32px)]">
-            <ConnectedVision />
-          </div>
+        <div className="lg:order-1 lg:col-span-6">
+          <ConnectedVision />
         </div>
       </div>
     </section>
   );
 }
 
-/**
- * Four disciplines, drawn as overlapping fields that share one centre.
- * On scroll the fields converge from apart into one shared centre (ScrollChoreography);
- * without JS or with reduced motion it renders in its final, converged state.
- */
-function ConnectedVision() {
-  const fields = [
-    { id: "strategy", dx: -46, dy: -46, cx: 156, cy: 156, label: "Strategy", lx: 40, ly: 40, anchor: "start" },
-    { id: "technology", dx: 46, dy: -46, cx: 244, cy: 156, label: "Technology", lx: 360, ly: 40, anchor: "end" },
-    { id: "creativity", dx: -46, dy: 46, cx: 156, cy: 244, label: "Creativity", lx: 40, ly: 370, anchor: "start" },
-    { id: "performance", dx: 46, dy: 46, cx: 244, cy: 244, label: "Performance", lx: 360, ly: 370, anchor: "end" },
-  ] as const;
+// Disc centres sit on a small square around the middle; dx/dy (in % of the
+// disc) is how far apart each starts before converging.
+const DISCS = [
+  { id: "strategy", label: "Strategy", pos: "left-[6%] top-[6%]", labelPos: "top-[24%] left-[20%]", dx: -34, dy: -34 },
+  { id: "technology", label: "Technology", pos: "right-[6%] top-[6%]", labelPos: "top-[24%] right-[20%] text-right", dx: 34, dy: -34 },
+  { id: "creativity", label: "Creativity", pos: "left-[6%] bottom-[6%]", labelPos: "bottom-[24%] left-[20%]", dx: -34, dy: 34 },
+  { id: "performance", label: "Performance", pos: "right-[6%] bottom-[6%]", labelPos: "bottom-[24%] right-[20%] text-right", dx: 34, dy: 34 },
+] as const;
 
+function ConnectedVision() {
   return (
-    <figure className="relative mx-auto aspect-square w-full max-w-[560px] overflow-hidden rounded-[6px] border border-line bg-surface shadow-[0_10px_30px_-10px_rgb(17_17_17/0.05)]">
-      {/* Four liquid forms merging into one — sits beneath the converging fields. */}
-      <div data-liquid-media className="absolute inset-0 -z-10 opacity-25">
+    <figure
+      data-vision
+      className="vision-figure relative mx-auto aspect-square w-full max-w-[600px]"
+      aria-labelledby="vision-caption"
+    >
+      <figcaption id="vision-caption" className="sr-only">
+        Strategy, Technology, Creativity and Performance overlapping around one shared centre
+      </figcaption>
+
+      {/* The material behind the glass: the ribbon twists where all four meet. */}
+      <div data-parallax="24" aria-hidden="true" className="vision-ribbon absolute inset-0">
         <Image
-          src={SECTION_ART.approach}
+          src="/images/art/vision-ribbon.webp"
           alt=""
           fill
-          sizes="(min-width: 1024px) 40vw, 100vw"
-          className="object-cover"
+          sizes="(min-width: 1024px) 45vw, 100vw"
+          className="-translate-x-[8%] object-cover"
         />
       </div>
-      <svg
-        data-vision
-        viewBox="0 0 400 400"
-        className="relative size-full"
-        role="img"
-        aria-labelledby="vision-title"
-      >
-        <title id="vision-title">
-          Strategy, Technology, Creativity and Performance overlapping around one shared centre
-        </title>
-        <defs>
-          <radialGradient id="vision-core" cx="50%" cy="50%" r="50%">
-            <stop offset="0" stopColor="#111" stopOpacity="0.12" />
-            <stop offset="1" stopColor="#111" stopOpacity="0" />
-          </radialGradient>
-        </defs>
 
-        {/* Fine guide grid */}
-        <g stroke="#111" strokeOpacity="0.06">
-          {Array.from({ length: 9 }, (_, i) => (
-            <line key={`v${i}`} x1={40 + i * 40} y1="20" x2={40 + i * 40} y2="380" />
-          ))}
-          {Array.from({ length: 9 }, (_, i) => (
-            <line key={`h${i}`} x1="20" y1={40 + i * 40} x2="380" y2={40 + i * 40} />
-          ))}
-        </g>
+      {/* Shared centre: an ember glow that grows as the disciplines meet. */}
+      <div data-vision-core aria-hidden="true" className="vision-core absolute inset-[30%] rounded-full" />
 
-        {/* Only the fields move as they converge; labels stay pinned to the corners. */}
-        {fields.map((f) => (
-          <g key={f.id} data-vision-field data-dx={f.dx} data-dy={f.dy}>
-            <circle cx={f.cx} cy={f.cy} r="94" fill="#111" fillOpacity="0.02" stroke="#111" strokeOpacity="0.25" strokeWidth="1" />
-            <circle cx={f.cx} cy={f.cy} r="2.5" fill="#111" fillOpacity="0.7" />
-          </g>
-        ))}
-        {fields.map((f) => (
-          <text
-            key={`${f.id}-label`}
-            x={f.lx}
-            y={f.ly}
-            textAnchor={f.anchor}
-            fill="#111"
-            fillOpacity="0.75"
-            fontSize="11"
-            letterSpacing="1.6"
-            style={{ textTransform: "uppercase" }}
-          >
-            {f.label}
-          </text>
-        ))}
+      {DISCS.map((disc) => (
+        <div
+          key={disc.id}
+          aria-hidden="true"
+          data-vision-field
+          data-disc={disc.id}
+          data-dx={disc.dx}
+          data-dy={disc.dy}
+          className={`glass-disc absolute size-[60%] rounded-full ${disc.pos}`}
+        >
+          <span className={`absolute text-[0.9375rem] font-medium text-ink ${disc.labelPos}`}>
+            {disc.label}
+          </span>
+        </div>
+      ))}
 
-        {/* Shared centre — appears as the fields converge (see ScrollChoreography). */}
-        <g data-vision-core>
-          <circle cx="200" cy="200" r="70" fill="url(#vision-core)" />
-          <circle cx="200" cy="200" r="14" fill="none" stroke="#111" strokeOpacity="0.4" />
-          <circle cx="200" cy="200" r="4" fill="#111" />
-        </g>
-      </svg>
+      {/* The point where all four meet. */}
+      <span
+        aria-hidden="true"
+        className="absolute top-1/2 left-1/2 size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-paper bg-ember shadow-[0_0_0_6px_rgb(255_90_31/0.18)]"
+      />
     </figure>
   );
 }

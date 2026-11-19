@@ -1,58 +1,30 @@
-import { ServiceCard } from "@/components/cards/ServiceCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ANCHORS } from "@/constants/site";
 import { SERVICES } from "@/constants/content";
+import { ServicesIndex } from "./ServicesIndex";
 
-// Running service number across categories (01–06).
-const OFFSETS = SERVICES.categories.map((_, i) =>
-  SERVICES.categories
-    .slice(0, i)
-    .reduce((count, category) => count + category.services.length, 0),
-);
-
+/**
+ * Six services in three groups, explored as an index: "available
+ * individually or brought together as one connected programme".
+ */
 export function ServicesSection() {
   return (
-    <section
-      id={ANCHORS.services}
-      aria-labelledby="services-heading"
-      className="section-y"
-    >
+    <section id={ANCHORS.services} aria-labelledby="services-heading" className="section-y">
       <div className="container-dw">
-        <SectionHeading
-          id="services-heading"
-          eyebrow={SERVICES.eyebrow}
-          title={SERVICES.heading}
-          intro={SERVICES.intro}
-        />
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-end lg:gap-x-6">
+          <SectionHeading
+            id="services-heading"
+            eyebrow={SERVICES.eyebrow}
+            title={SERVICES.heading}
+            className="lg:col-span-7"
+          />
+          <p className="text-body max-w-[44ch] text-ink-muted lg:col-span-4 lg:col-start-9 lg:pb-2" data-reveal>
+            {SERVICES.intro}
+          </p>
+        </div>
 
-        <div className="mt-14 flex flex-col gap-14 md:mt-20 md:gap-20">
-          {SERVICES.categories.map((category, ci) => (
-            <div
-              key={category.id}
-              className="grid grid-cols-1 gap-6 border-t border-line pt-6 lg:grid-cols-12 lg:gap-x-6 lg:pt-8"
-            >
-              <div className="lg:col-span-3" data-reveal>
-                <div className="flex items-baseline gap-4 lg:sticky lg:top-[calc(var(--header-h)+32px)] lg:flex-col lg:gap-3">
-                  <span className="text-eyebrow text-ink-muted">
-                    Category {category.label}
-                  </span>
-                  <h3 className="text-[1.125rem] leading-tight font-medium tracking-[-0.01em] text-ink md:text-xl">
-                    {category.title}
-                  </h3>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5 lg:col-span-9" data-reveal-group>
-                {category.services.map((service, si) => (
-                  <ServiceCard
-                    key={service.id}
-                    service={service}
-                    index={OFFSETS[ci] + si}
-                  />
-                ))}
-              </div>
-            </div>
-          ))}
+        <div className="mt-12 md:mt-16">
+          <ServicesIndex categories={SERVICES.categories} />
         </div>
       </div>
     </section>

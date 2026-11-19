@@ -13,7 +13,8 @@ import { LIQUID_QUERY, createLiquidFilter } from "@/lib/liquid";
  *   data-reveal-group            container whose [data-reveal-item]s stagger in
  *   data-parallax="<px>"         desktop-only drift while scrolling past
  *   data-vision / data-vision-field / data-vision-core   converging diagram
- *   data-process / data-process-line / data-process-node timeline drawing
+ *   data-process / data-process-step|riser|tread|rail|node  staircase drawing
+ *   data-work / data-work-unfurl / data-work-rule  ribbon unfurl + brief rules
  *
  * Animation ownership: GSAP owns transform/opacity on these elements. Motion is
  * used only for the mobile menu; CSS only for hover/focus on other properties.
@@ -60,6 +61,8 @@ export function ScrollChoreography() {
         });
 
         gsap.utils.toArray<HTMLElement>("[data-reveal-group]").forEach((group) => {
+          // data-reveal-group="mobile": desktop has its own choreography for it.
+          if (desktop && group.dataset.revealGroup === "mobile") return;
           const items = gsap.utils
             .toArray<HTMLElement>(group.querySelectorAll("[data-reveal-item]"))
             .filter((el) => !alreadyPassed(el));
@@ -99,6 +102,52 @@ export function ScrollChoreography() {
           });
         }
 
+        // Hero hand-off (desktop): the headline lines slide apart in opposite
+        // directions while the sculpture sinks and turns away. Scrubbed, so it
+        // reverses on scroll up. The one choreographed moment on the page.
+        if (desktop) {
+          const hero = document.querySelector<HTMLElement>("[data-hero-visual]")?.closest("section");
+          if (hero) {
+            const out = { trigger: hero, start: "top top", end: "bottom top", scrub: 0.6 };
+            gsap.utils.toArray<HTMLElement>("[data-hero-line]", hero).forEach((line, i) => {
+              const dir = Number(line.dataset.heroLine) || 1;
+              gsap.to(line, { xPercent: dir * (9 + i * 3), ease: "none", scrollTrigger: out });
+            });
+            gsap.to("[data-hero-visual]", { y: 160, scale: 0.84, rotate: -6, ease: "none", scrollTrigger: out });
+          }
+        }
+
+        // Problems (desktop): pin the stage; the cards go from a tilted pile to a
+        // neat row (scattered → structured), then an ember line threads their
+        // nodes (connected). Scrubbed both ways. Markup is the final state.
+        if (desktop) {
+          const problems = document.querySelector<HTMLElement>("[data-problems]");
+          const stage = problems?.querySelector<HTMLElement>("[data-problems-stage]");
+          if (problems && stage) {
+            const cards = gsap.utils.toArray<HTMLElement>("[data-problem-card]", problems);
+            const nodes = problems.querySelectorAll("[data-problem-node]");
+            const line = problems.querySelector("[data-problems-line]");
+            // Pile toward the row's centre, each at its own tilt and height.
+            const pile = [
+              { xPercent: 118, y: 46, rotate: -9 },
+              { xPercent: 36, y: -18, rotate: 6 },
+              { xPercent: -38, y: 34, rotate: -4 },
+              { xPercent: -122, y: -10, rotate: 10 },
+            ];
+            const tl = gsap.timeline({
+              defaults: { ease: "power2.inOut" },
+              scrollTrigger: { trigger: stage, start: "top top", end: "+=130%", pin: true, scrub: 0.8, anticipatePin: 1, refreshPriority: 1 },
+            });
+            cards.forEach((card, i) => {
+              tl.from(card, { ...pile[i % pile.length], duration: 1 }, i * 0.06);
+            });
+            if (line) tl.from(line, { scaleX: 0, duration: 0.6, ease: "none" }, 1.05);
+            tl.from(nodes, { scale: 0.4, duration: 0.2, stagger: 0.14, ease: "back.out(3)" }, 1.05);
+            tl.to(nodes, { backgroundColor: "#ff5a1f", duration: 0.15, stagger: 0.14 }, 1.12);
+            tl.to({}, { duration: 0.25 }); // brief hold on the connected row before release
+          }
+        }
+
         if (desktop) {
           gsap.utils.toArray<HTMLElement>("[data-parallax]").forEach((el) => {
             const distance = Number(el.dataset.parallax) || 40;
@@ -114,10 +163,11 @@ export function ScrollChoreography() {
           });
         }
 
-        // Growth philosophy: four fields start apart and converge on one centre.
+        // Growth philosophy: four glass discs start apart and converge on one
+        // centre, where the ember core grows.
         // Desktop scrubs with scroll; mobile plays once (no long scroll sequences).
-        gsap.utils.toArray<SVGElement>("[data-vision]").forEach((vision) => {
-          const fields = vision.querySelectorAll<SVGGElement>("[data-vision-field]");
+        gsap.utils.toArray<HTMLElement>("[data-vision]").forEach((vision) => {
+          const fields = vision.querySelectorAll<HTMLElement>("[data-vision-field]");
           const core = vision.querySelector("[data-vision-core]");
           const spread = desktop ? 1 : 0.55;
           const tl = gsap.timeline({
@@ -130,9 +180,9 @@ export function ScrollChoreography() {
             tl.from(
               field,
               {
-                x: Number(field.dataset.dx) * spread,
-                y: Number(field.dataset.dy) * spread,
-                opacity: 0.35,
+                xPercent: Number(field.dataset.dx) * spread,
+                yPercent: Number(field.dataset.dy) * spread,
+                opacity: 0.5,
                 duration: desktop ? 1 : 1.2,
               },
               0,
@@ -143,27 +193,92 @@ export function ScrollChoreography() {
           }
         });
 
-        // Process: draw the timeline, then light up each stage node.
+        // Process: one hairline climbs the staircase (riser, then tread) and
+        // each stage's node turns from a hollow ring to ember as it's reached.
+        // Desktop scrubs with scroll; mobile draws the rail once.
+        const unlit = { backgroundColor: "#f8f8f6", borderColor: "rgba(17,17,17,0.3)" };
+        // An ember spark rides the tip of the line; its coordinates are read
+        // from layout (relative to the <ol>) and re-read on every refresh.
         gsap.utils.toArray<HTMLElement>("[data-process]").forEach((process) => {
-          const line = process.querySelector("[data-process-line]");
-          const nodes = process.querySelectorAll("[data-process-node]");
-          const tl = gsap.timeline({
-            scrollTrigger: { trigger: process, start: "top 80%", once: true },
-          });
-          if (line) {
-            tl.from(line, {
-              scaleX: desktop ? 0 : 1,
-              scaleY: desktop ? 1 : 0,
-              transformOrigin: desktop ? "0% 50%" : "50% 0%",
-              duration: desktop ? 1.4 : 1,
-              ease: "power2.inOut",
+          const spark = process.querySelector<HTMLElement>("[data-process-spark]");
+          if (desktop) {
+            const steps = gsap.utils.toArray<HTMLElement>("[data-process-step]", process);
+            if (!steps.length || alreadyPassed(steps[0])) return;
+            const tl = gsap.timeline({
+              defaults: { ease: "none" },
+              // The climb runs up-screen against the scroll, so key it to the
+              // lowest step (Discover) rising through the viewport.
+              scrollTrigger: {
+                trigger: steps[0],
+                start: "top 85%",
+                end: "top 35%",
+                scrub: 0.6,
+                invalidateOnRefresh: true,
+              },
+            });
+            if (spark) {
+              tl.set(spark, { x: () => steps[0].offsetLeft, y: () => steps[0].offsetTop }, 0);
+              tl.to(spark, { opacity: 1, duration: 0.1 }, 0);
+            }
+            steps.forEach((step) => {
+              const riser = step.querySelector<HTMLElement>("[data-process-riser]");
+              const tread = step.querySelector("[data-process-tread]");
+              const node = step.querySelector("[data-process-node]");
+              const x = () => step.offsetLeft;
+              const y = () => step.offsetTop;
+              if (riser) {
+                tl.from(riser, { scaleY: 0, duration: 0.45 });
+                if (spark) tl.to(spark, { x, y, duration: 0.45 }, "<");
+              }
+              if (node) tl.from(node, { ...unlit, scale: 0.7, duration: 0.12 });
+              if (tread) {
+                tl.from(tread, { scaleX: 0, duration: 1 });
+                if (spark) tl.to(spark, { x: () => step.offsetLeft + step.offsetWidth, y, duration: 1 }, "<");
+              }
+            });
+            if (spark) tl.to(spark, { opacity: 0, scale: 0.4, duration: 0.15 });
+          } else {
+            const rail = process.querySelector<HTMLElement>("[data-process-rail]");
+            const track = rail?.parentElement;
+            const nodes = process.querySelectorAll("[data-process-node]");
+            const tl = gsap.timeline({ scrollTrigger: { trigger: process, start: "top 80%", once: true } });
+            if (rail) tl.from(rail, { scaleY: 0, duration: 1.2, ease: "power2.inOut" });
+            if (spark && track) {
+              tl.set(spark, { x: track.offsetLeft, y: track.offsetTop }, 0);
+              tl.to(spark, { opacity: 1, duration: 0.15 }, 0);
+              tl.to(spark, { y: track.offsetTop + track.offsetHeight, duration: 1.2, ease: "power2.inOut" }, 0);
+              tl.to(spark, { opacity: 0, scale: 0.4, duration: 0.3 });
+            }
+            tl.from(nodes, { ...unlit, duration: 0.3, stagger: 0.25 }, 0.15);
+          }
+        });
+
+        // Selected work: the featured ribbon unfurls left to right (idea → impact),
+        // then the brief's column rules draw in the same order, ember last.
+        // Plays once; clip-path only, so the parallax wrapper keeps transform.
+        gsap.utils.toArray<HTMLElement>("[data-work]").forEach((work) => {
+          const ribbon = work.querySelector("[data-work-unfurl]");
+          const rules = work.querySelectorAll("[data-work-rule]");
+          if (alreadyPassed(work)) return;
+          if (ribbon && !alreadyPassed(ribbon)) {
+            gsap.from(ribbon, {
+              clipPath: "inset(0% 100% 0% 0%)",
+              duration: desktop ? 1.8 : 1.2,
+              ease: "power3.inOut",
+              clearProps: "clipPath",
+              scrollTrigger: { trigger: ribbon, start: desktop ? "top 75%" : "top 85%", once: true },
             });
           }
-          tl.from(
-            nodes,
-            { scale: 0.2, opacity: 0, duration: 0.5, ease: "back.out(2)", stagger: desktop ? 0.28 : 0.2 },
-            0.2,
-          );
+          // The rules sit well below the ribbon, so they get their own trigger.
+          if (rules.length) {
+            gsap.from(rules, {
+              scaleX: 0,
+              duration: 0.7,
+              ease: "power2.inOut",
+              stagger: 0.22,
+              scrollTrigger: { trigger: rules[0], start: "top 85%", once: true },
+            });
+          }
         });
 
         return () => liquidCleanup.forEach((fn) => fn());

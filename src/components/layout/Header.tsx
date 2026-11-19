@@ -9,6 +9,7 @@ import { Wordmark } from "@/components/ui/Wordmark";
 import { CTA, NAV_LINKS } from "@/constants/site";
 import { cn } from "@/lib/cn";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useLiquidLens } from "@/hooks/useLiquidLens";
 
 const MENU_ID = "mobile-menu";
 
@@ -32,6 +33,7 @@ export function Header() {
   const closeMenu = useCallback(() => setMenuOpen(false), []);
   const desktop = useMediaQuery("(min-width: 1024px)");
   const floating = scrolled && desktop;
+  const pillRef = useLiquidLens<HTMLDivElement>();
 
   return (
     <>
@@ -41,12 +43,13 @@ export function Header() {
           // Below desktop: a frosted bar once scrolled. Desktop: the bar stays clear
           // and the content floats in a liquid-glass pill instead.
           scrolled && !floating
-            ? "border-b border-line/80 bg-paper/75 backdrop-blur-xl backdrop-saturate-150"
+            ? "liquid-bar border-b border-white/70"
             : "border-b border-transparent bg-transparent",
         )}
       >
         <div className="container-dw flex h-full items-center">
         <div
+          ref={pillRef}
           data-liquid-glass
           data-liquid-bezel="26"
           data-liquid-strength="34"
@@ -68,7 +71,7 @@ export function Header() {
                     {link.label}
                     <span
                       aria-hidden="true"
-                      className="absolute inset-x-0 bottom-0.5 h-px origin-right scale-x-0 bg-ink transition-transform duration-500 ease-editorial group-hover/nav:origin-left group-hover/nav:scale-x-100 group-focus-visible/nav:scale-x-100"
+                      className="absolute inset-x-0 bottom-0.5 h-px origin-right scale-x-0 bg-ember transition-transform duration-500 ease-editorial group-hover/nav:origin-left group-hover/nav:scale-x-100 group-focus-visible/nav:scale-x-100"
                     />
                   </Link>
                 </li>

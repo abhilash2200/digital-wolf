@@ -7,6 +7,11 @@ import {
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { FAQ as FAQ_CONTENT } from "@/constants/content";
 
+/**
+ * "Questions, Answered." Large editorial question rows beside a sticky
+ * heading; the open row's rule draws across in ember. The first answer starts
+ * open so the section shows content without a click.
+ */
 export function FAQ() {
   return (
     <section aria-labelledby="faq-heading" className="section-y">
@@ -22,7 +27,7 @@ export function FAQ() {
         </div>
 
         <div className="lg:col-span-8" data-reveal>
-          <Accordion>
+          <Accordion defaultValue={[FAQ_CONTENT.items[0].question]}>
             {FAQ_CONTENT.items.map((item) => (
               <AccordionItem key={item.question} value={item.question}>
                 <AccordionTrigger>{item.question}</AccordionTrigger>

@@ -33,7 +33,7 @@ export const SERVICES = {
       services: [
         {
           id: "seo",
-          image: "/images/art/svc-seo.webp",
+          image: "/images/art/svc-seo-ember.webp",
           title: "SEO",
           summary: "Help the right customers find you through search.",
           items: [
@@ -46,7 +46,7 @@ export const SERVICES = {
         },
         {
           id: "digital-strategy",
-          image: "/images/art/svc-strategy.webp",
+          image: "/images/art/svc-strategy-ember.webp",
           title: "Digital Strategy",
           summary: "Set clear priorities and a plan that connects every channel.",
           items: [
@@ -65,7 +65,7 @@ export const SERVICES = {
       services: [
         {
           id: "development",
-          image: "/images/art/svc-development.webp",
+          image: "/images/art/svc-development-ember.webp",
           title: "Website & Application Development",
           summary: "Build fast, dependable websites and web applications.",
           items: [
@@ -78,7 +78,7 @@ export const SERVICES = {
         },
         {
           id: "creative",
-          image: "/images/art/svc-creative.webp",
+          image: "/images/art/svc-creative-ember.webp",
           title: "Creative & Design",
           summary: "Shape a consistent brand and experiences people remember.",
           items: [
@@ -97,7 +97,7 @@ export const SERVICES = {
       services: [
         {
           id: "ppc",
-          image: "/images/art/svc-ppc.webp",
+          image: "/images/art/svc-ppc-ember.webp",
           title: "PPC & Performance Marketing",
           summary: "Run paid campaigns that are targeted, tracked and optimised.",
           items: [
@@ -110,7 +110,7 @@ export const SERVICES = {
         },
         {
           id: "social",
-          image: "/images/art/svc-social.webp",
+          image: "/images/art/svc-social-ember.webp",
           title: "Social Media Marketing",
           summary: "Build an engaged audience with a consistent social presence.",
           items: [
@@ -161,14 +161,6 @@ export const PHILOSOPHY = {
 /* ------------------------------------------------------------------
    Process (spec §5.7) — approved stage copy.
    ------------------------------------------------------------------ */
-/** Abstract section artwork (decorative). */
-export const SECTION_ART = {
-  problems: "/images/art/sec-problems.webp",
-  approach: "/images/art/sec-approach.webp",
-  process: "/images/art/sec-process.webp",
-  contact: "/images/art/sec-contact.webp",
-} as const;
-
 export const PROCESS = {
   eyebrow: "Process",
   heading: "A Clear Strategy. A Smarter Way Forward.",
@@ -220,11 +212,17 @@ export const WORK = {
     { id: "project-2", ...EMPTY_CASE },
     { id: "project-3", ...EMPTY_CASE },
   ] satisfies CaseStudy[],
-  /** Abstract concept artwork shown until real project imagery is supplied. */
+  /**
+   * Generated ribbon artwork (scripts/art/pearl-ribbon.html) shown, labelled as
+   * concept art, until real project imagery is supplied. Featured: seed 1.2,
+   * zoom 2.6, width .7, rendered 1000×2400 and turned 90° anticlockwise; project-2:
+   * seed .8, zoom 1.8, width .8 at 1200×1500; project-3: seed .6, zoom 2.4,
+   * width .7 at 1200×1600, turned 90° clockwise.
+   */
   conceptArt: {
-    featured: "/images/art/case-1.webp",
-    "project-2": "/images/art/case-2.webp",
-    "project-3": "/images/art/case-3.webp",
+    featured: "/images/art/work-featured-ember.webp",
+    "project-2": "/images/art/work-2-ember.webp",
+    "project-3": "/images/art/work-3-ember.webp",
   } as Record<string, string>,
 } as const;
 
@@ -234,7 +232,33 @@ export const WORK = {
 export const TESTIMONIALS = {
   eyebrow: "Client words",
   heading: "Good Work Builds Lasting Partnerships.",
-  items: [] as Testimonial[],
+  // Samples show the filled layout. Replace each with a genuine, approved quote
+  // (and drop `sample`) — never publish invented praise.
+  items: [
+    {
+      sample: true,
+      quote:
+        "Placeholder quote. A genuine client testimonial about working with Digital Wolf will go here, in the client's own words, once it has been approved for publication.",
+      name: "Client name",
+      role: "Role",
+      company: "Company",
+    },
+    {
+      sample: true,
+      quote: "Placeholder quote. A shorter approved testimonial will go here.",
+      name: "Client name",
+      role: "Role",
+      company: "Company",
+    },
+    {
+      sample: true,
+      quote:
+        "Placeholder quote. This slot shows how a longer testimonial wraps: a real client's words about the partnership, the work and what changed for their business will replace this text before launch.",
+      name: "Client name",
+      role: "Role",
+      company: "Company",
+    },
+  ] as Testimonial[],
 } as const;
 
 /* ------------------------------------------------------------------
@@ -288,5 +312,7 @@ export const FAQ = {
    ------------------------------------------------------------------ */
 export const CONTACT = {
   heading: "Let’s Make Your Next Move Matter.",
+  /** Generated ribbon (scripts/art/pearl-ribbon.html: seed 2.2, zoom 1.8, width .8, 1200×1800). */
+  art: "/images/art/contact-ribbon-ember.webp",
   body: "Tell us about your business, your challenges and where you want to go. Let’s explore how Digital Wolf can help you move forward.",
 } as const;

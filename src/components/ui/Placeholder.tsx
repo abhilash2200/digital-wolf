@@ -17,7 +17,7 @@ export function PlaceholderTag({
   return (
     <span
       className={cn(
-        "text-eyebrow inline-flex items-center gap-2 rounded-full border border-dashed px-3 py-1.5",
+        "inline-flex items-center gap-2 rounded-full border border-dashed px-3 py-1 text-[0.8125rem]",
         tone === "dark"
           ? "border-white/30 text-white/60"
           : "border-silver text-ink-muted",

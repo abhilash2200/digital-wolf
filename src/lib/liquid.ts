@@ -121,6 +121,34 @@ export function createLensFilter(element: HTMLElement, { bezel = 22, strength = 
   return { id, rebuild: build, remove: () => filter?.remove() };
 }
 
+/**
+ * Give one glass element a refraction lens (`--lens`) sized to it, rebuilt on
+ * resize. Built on idle so it never competes with first paint. Returns cleanup.
+ */
+export function attachLens(node: HTMLElement) {
+  let lens: ReturnType<typeof createLensFilter> | null = null;
+  const resize = new ResizeObserver(() => lens?.rebuild());
+  const start = () => {
+    lens = createLensFilter(node, {
+      bezel: Number(node.dataset.liquidBezel) || 22,
+      strength: Number(node.dataset.liquidStrength) || 38,
+    });
+    node.style.setProperty("--lens", `url(#${lens.id})`);
+    resize.observe(node);
+  };
+  const hasIdle = typeof window.requestIdleCallback === "function";
+  const idle = hasIdle ? window.requestIdleCallback(start, { timeout: 1500 }) : 0;
+  const timer = hasIdle ? undefined : setTimeout(start, 200);
+
+  return () => {
+    if (hasIdle) window.cancelIdleCallback(idle);
+    clearTimeout(timer);
+    resize.disconnect();
+    node.style.removeProperty("--lens");
+    lens?.remove();
+  };
+}
+
 /** Chromium is the only engine that renders SVG filters inside backdrop-filter. */
 export function supportsLiquidRefraction() {
   const brands = (navigator as Navigator & { userAgentData?: { brands?: { brand: string }[] } }).userAgentData?.brands;
