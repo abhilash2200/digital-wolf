@@ -13,6 +13,8 @@ import {
  *  - sets html[data-liquid] (+ [data-refract] on Chromium) so CSS can opt in
  *  - cursor-following specular highlight on [data-liquid-glass] elements
  *  - liquid ripple when hovering [data-liquid-media]
+ *  - html[data-scrolling] while the page scrolls (glass drops its CPU-heavy
+ *    SVG lens for a GPU blur until scrolling settles; see globals.css)
  * Refraction lenses are attached per element by `useLiquidLens`, after that
  * element hydrates. Phones, tablets and reduced-motion users get none of it.
  */
@@ -87,7 +89,23 @@ function enable() {
   };
   document.addEventListener("pointerover", onPointerOver, { passive: true });
 
+  // --- Scroll state: html[data-scrolling] while the page is moving ---
+  // Chromium renders SVG filters inside backdrop-filter on the CPU, so the
+  // refraction lens on fixed glass (the header pill) re-ran every scroll frame
+  // and held scrolling at ~30fps. CSS swaps it for a GPU blur while scrolling;
+  // the lens returns once scrolling settles.
+  let settle: ReturnType<typeof setTimeout> | undefined;
+  const onScroll = () => {
+    if (!("scrolling" in html.dataset)) html.dataset.scrolling = "";
+    clearTimeout(settle);
+    settle = setTimeout(() => delete html.dataset.scrolling, 160);
+  };
+  window.addEventListener("scroll", onScroll, { passive: true });
+
   return () => {
+    window.removeEventListener("scroll", onScroll);
+    clearTimeout(settle);
+    delete html.dataset.scrolling;
     delete html.dataset.liquid;
     delete html.dataset.refract;
     document.removeEventListener("pointermove", onPointerMove);

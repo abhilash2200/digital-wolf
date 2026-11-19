@@ -14,7 +14,6 @@ import { LIQUID_QUERY, createLiquidFilter } from "@/lib/liquid";
  *   data-parallax="<px>"         desktop-only drift while scrolling past
  *   data-vision / data-vision-field / data-vision-core   converging diagram
  *   data-process / data-process-step|riser|tread|rail|node  staircase drawing
- *   data-work / data-work-unfurl / data-work-rule  ribbon unfurl + brief rules
  *
  * Animation ownership: GSAP owns transform/opacity on these elements. Motion is
  * used only for the mobile menu; CSS only for hover/focus on other properties.
@@ -177,16 +176,15 @@ export function ScrollChoreography() {
             defaults: { ease: desktop ? "none" : "power3.out" },
           });
           fields.forEach((field) => {
-            tl.from(
-              field,
-              {
-                xPercent: Number(field.dataset.dx) * spread,
-                yPercent: Number(field.dataset.dy) * spread,
-                opacity: 0.5,
-                duration: desktop ? 1 : 1.2,
-              },
-              0,
-            );
+            const dx = Number(field.dataset.dx) * spread;
+            const dy = Number(field.dataset.dy) * spread;
+            const duration = desktop ? 1 : 1.2;
+            tl.from(field, { xPercent: dx, yPercent: dy, opacity: 0.5, duration }, 0);
+            // The baked frost inside the disc moves the opposite way so it stays
+            // in register with the ribbon behind. It is 1/0.6 of the disc's size,
+            // so the same distance is 0.6× the percentage.
+            const frost = field.querySelector("[data-vision-frost]");
+            if (frost) tl.from(frost, { xPercent: -dx * 0.6, yPercent: -dy * 0.6, duration }, 0);
           });
           if (core) {
             tl.from(core, { scale: 0.3, opacity: 0, transformOrigin: "50% 50%", duration: 0.6 }, desktop ? 0.4 : 0.6);
@@ -250,34 +248,6 @@ export function ScrollChoreography() {
               tl.to(spark, { opacity: 0, scale: 0.4, duration: 0.3 });
             }
             tl.from(nodes, { ...unlit, duration: 0.3, stagger: 0.25 }, 0.15);
-          }
-        });
-
-        // Selected work: the featured ribbon unfurls left to right (idea → impact),
-        // then the brief's column rules draw in the same order, ember last.
-        // Plays once; clip-path only, so the parallax wrapper keeps transform.
-        gsap.utils.toArray<HTMLElement>("[data-work]").forEach((work) => {
-          const ribbon = work.querySelector("[data-work-unfurl]");
-          const rules = work.querySelectorAll("[data-work-rule]");
-          if (alreadyPassed(work)) return;
-          if (ribbon && !alreadyPassed(ribbon)) {
-            gsap.from(ribbon, {
-              clipPath: "inset(0% 100% 0% 0%)",
-              duration: desktop ? 1.8 : 1.2,
-              ease: "power3.inOut",
-              clearProps: "clipPath",
-              scrollTrigger: { trigger: ribbon, start: desktop ? "top 75%" : "top 85%", once: true },
-            });
-          }
-          // The rules sit well below the ribbon, so they get their own trigger.
-          if (rules.length) {
-            gsap.from(rules, {
-              scaleX: 0,
-              duration: 0.7,
-              ease: "power2.inOut",
-              stagger: 0.22,
-              scrollTrigger: { trigger: rules[0], start: "top 85%", once: true },
-            });
           }
         });
 

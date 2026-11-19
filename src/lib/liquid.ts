@@ -127,7 +127,14 @@ export function createLensFilter(element: HTMLElement, { bezel = 22, strength = 
  */
 export function attachLens(node: HTMLElement) {
   let lens: ReturnType<typeof createLensFilter> | null = null;
-  const resize = new ResizeObserver(() => lens?.rebuild());
+  // Rebuild once the size has settled. A rebuild re-renders the lens map
+  // (canvas → PNG → new SVG filter); doing it on every frame of a size
+  // transition (the header pill animating in) cost ~800ms of main thread.
+  let settle: ReturnType<typeof setTimeout> | undefined;
+  const resize = new ResizeObserver(() => {
+    clearTimeout(settle);
+    settle = setTimeout(() => lens?.rebuild(), 160);
+  });
   const start = () => {
     lens = createLensFilter(node, {
       bezel: Number(node.dataset.liquidBezel) || 22,
@@ -143,6 +150,7 @@ export function attachLens(node: HTMLElement) {
   return () => {
     if (hasIdle) window.cancelIdleCallback(idle);
     clearTimeout(timer);
+    clearTimeout(settle);
     resize.disconnect();
     node.style.removeProperty("--lens");
     lens?.remove();

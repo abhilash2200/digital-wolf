@@ -212,18 +212,40 @@ export const WORK = {
     { id: "project-2", ...EMPTY_CASE },
     { id: "project-3", ...EMPTY_CASE },
   ] satisfies CaseStudy[],
+  /** Labels the card rows while they carry concept art, not project imagery. */
+  railNote: "Concept art · project imagery pending",
   /**
-   * Generated ribbon artwork (scripts/art/pearl-ribbon.html) shown, labelled as
-   * concept art, until real project imagery is supplied. Featured: seed 1.2,
-   * zoom 2.6, width .7, rendered 1000×2400 and turned 90° anticlockwise; project-2:
-   * seed .8, zoom 1.8, width .8 at 1200×1500; project-3: seed .6, zoom 2.4,
-   * width .7 at 1200×1600, turned 90° clockwise.
+   * Card rows: generated ribbon artwork (scripts/art/pearl-ribbon.html) already
+   * used across the site, on light card grounds, shown — labelled as concept art —
+   * until approved project imagery is supplied. Replace `src` with real project
+   * images (and drop the label) when they exist.
    */
-  conceptArt: {
-    featured: "/images/art/work-featured-ember.webp",
-    "project-2": "/images/art/work-2-ember.webp",
-    "project-3": "/images/art/work-3-ember.webp",
-  } as Record<string, string>,
+  rows: [
+    [
+      { src: "/images/art/work-3-ember.webp", tone: "#ffffff" },
+      { src: "/images/art/svc-seo-ember.webp", tone: "#e6e6e2" },
+      { src: "/images/art/work-featured-ember.webp", tone: "#ffffff" },
+      { src: "/images/art/svc-creative-ember.webp", tone: "#dcdcd8" },
+      { src: "/images/art/vision-ribbon.webp", tone: "#ffffff" },
+      { src: "/images/art/svc-ppc-ember.webp", tone: "#e6e6e2" },
+    ],
+    [
+      { src: "/images/art/svc-strategy-ember.webp", tone: "#dcdcd8" },
+      { src: "/images/hero-ribbon-ember.webp", tone: "#ffffff" },
+      { src: "/images/art/svc-development-ember.webp", tone: "#e6e6e2" },
+      { src: "/images/art/work-2-ember.webp", tone: "#ffffff" },
+      { src: "/images/art/svc-social-ember.webp", tone: "#dcdcd8" },
+      { src: "/images/art/contact-ribbon-ember.webp", tone: "#ffffff" },
+    ],
+    [
+      { src: "/images/art/svc-creative-ember.webp", tone: "#ffffff" },
+      { src: "/images/art/work-featured-ember.webp", tone: "#dcdcd8" },
+      { src: "/images/art/svc-seo-ember.webp", tone: "#ffffff" },
+      { src: "/images/art/work-3-ember.webp", tone: "#e6e6e2" },
+      { src: "/images/art/svc-ppc-ember.webp", tone: "#ffffff" },
+      { src: "/images/art/vision-ribbon.webp", tone: "#dcdcd8" },
+    ],
+  ],
 } as const;
 
 /* ------------------------------------------------------------------

@@ -9,21 +9,23 @@ import { WORK } from "@/constants/content";
 import type { CaseStudy } from "@/types/site";
 import { cn } from "@/lib/cn";
 
+type RailCard = { src: string; tone: string };
+
 const isPlaceholder = (project: CaseStudy) => project.client === null;
 
 /**
- * "Ideas Into Execution. Execution Into Impact." The headline's chain is the
- * structure of every case study: the featured brief reads Idea → Execution →
- * Impact in three columns, under a ribbon that runs pearl and twists to
- * ember above Impact. Supporting projects sit as a staggered editorial pair.
- * ScrollChoreography (data-work*) unfurls the ribbon and draws the column
- * rules in order. Markup is the final state: no JS / reduced motion shows
- * everything.
+ * Selected work: three full-bleed rows of project cards running as
+ * continuous carousels — top row left → right, middle right → left, bottom
+ * left → right (CSS, .work-row in globals.css; pause on hover). The rows
+ * are decorative (duplicated for the seamless loop); the numbered list below
+ * carries each project's details and case-study action. Reduced motion:
+ * still rows.
  */
 export function CaseStudies() {
-  const [second, third] = WORK.supporting;
+  const projects = [WORK.featured, ...WORK.supporting];
+  const [top, middle, bottom] = WORK.rows;
   return (
-    <section id={ANCHORS.work} aria-labelledby="work-heading" className="section-y">
+    <section id={ANCHORS.work} aria-labelledby="work-heading" className="section-y overflow-x-clip">
       <div className="container-dw">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-end lg:gap-x-6">
           <SectionHeading
@@ -32,156 +34,130 @@ export function CaseStudies() {
             title={WORK.heading}
             className="lg:col-span-8"
           />
-          {isPlaceholder(WORK.featured) && (
-            <PlaceholderTag className="justify-self-start lg:col-span-4 lg:justify-self-end">
-              Project content pending
-            </PlaceholderTag>
-          )}
+          <PlaceholderTag className="justify-self-start lg:col-span-4 lg:justify-self-end">
+            {WORK.railNote}
+          </PlaceholderTag>
         </div>
+      </div>
 
-        <FeaturedProject project={WORK.featured} />
+      {/* grid-cols-1 = minmax(0, 1fr): rows must not grow to their content width. */}
+      <div aria-hidden="true" className="mt-14 grid grid-cols-1 gap-3 md:mt-20 md:gap-4">
+        {top && <CardRow cards={top} direction="right" duration="70s" />}
+        {middle && <CardRow cards={middle} direction="left" duration="80s" />}
+        {bottom && <CardRow cards={bottom} direction="right" duration="64s" />}
+      </div>
 
-        {/* Two heights, one shared baseline: the art staggers, the captions align. */}
-        <div className="mt-24 grid grid-cols-1 gap-y-20 md:mt-32 lg:grid-cols-12 lg:items-end lg:gap-x-6">
-          {second && (
-            <ProjectFigure
-              project={second}
-              index={2}
-              aspect="aspect-[4/5]"
-              feather="art-feather-y"
-              sizes="(min-width: 1024px) 40vw, 100vw"
-              className="lg:col-span-5"
-            />
-          )}
-          {third && (
-            <ProjectFigure
-              project={third}
-              index={3}
-              aspect="aspect-[4/3]"
-              feather="art-feather-x"
-              sizes="(min-width: 1024px) 50vw, 100vw"
-              className="lg:col-span-6 lg:col-start-7"
-            />
-          )}
-          <div className="lg:col-span-6 lg:col-start-7">
-            <EnquiryButton size="lg" arrow>
-              {CTA.heroPrimary}
-            </EnquiryButton>
-          </div>
+      <div className="container-dw mt-16 md:mt-24">
+        {projects.some(isPlaceholder) && (
+          <PlaceholderTag className="mb-8">Project content pending</PlaceholderTag>
+        )}
+        <ol data-reveal-group className="border-b border-line">
+          {projects.map((project, i) => (
+            <ProjectRow key={project.id} project={project} index={i + 1} featured={i === 0} />
+          ))}
+        </ol>
+        <div className="mt-12 md:mt-16">
+          <EnquiryButton size="lg" arrow>
+            {CTA.heroPrimary}
+          </EnquiryButton>
         </div>
       </div>
     </section>
   );
 }
 
-function FeaturedProject({ project }: { project: CaseStudy }) {
-  const chain: { stage: string; items: [string, string | null][]; impact?: boolean }[] = [
-    {
-      stage: "Idea",
-      items: [
-        ["Challenge", project.challenge],
-        ["Strategy", project.strategy],
-      ],
-    },
-    {
-      stage: "Execution",
-      items: [
-        ["Delivery", project.execution],
-        ["Services", project.services.length ? project.services.join(", ") : null],
-      ],
-    },
-    { stage: "Impact", items: [["Verified outcomes", project.outcomes]], impact: true },
-  ];
-
+/** One continuously running row: two identical tracks loop seamlessly. */
+function CardRow({
+  cards,
+  direction,
+  duration,
+}: {
+  cards: readonly RailCard[];
+  direction: "left" | "right";
+  duration: string;
+}) {
   return (
-    <article data-work aria-labelledby={`case-${project.id}`} className="mt-14 md:mt-20">
-      <div data-parallax="28">
-        <ProjectVisual
-          project={project}
-          sizes="(min-width: 1280px) 1280px, 100vw"
-          featured
-          className="aspect-[4/3] sm:aspect-[2/1] lg:aspect-[3/1]"
-        />
-      </div>
-
-      <div className="mt-8 grid grid-cols-1 gap-3 md:mt-10 lg:grid-cols-12 lg:items-end lg:gap-x-6">
-        <div className="lg:col-span-8">
-          <p className="text-[0.9375rem] text-ink-muted">Featured project</p>
-          <h3
-            id={`case-${project.id}`}
-            className="mt-3 text-[clamp(1.75rem,1.1rem+2vw,2.75rem)] leading-[1.05] font-medium tracking-[-0.025em] text-ink"
-          >
-            {project.client ?? <Pending label="Client name to be supplied" />}
-          </h3>
-        </div>
-        <p className="text-[0.9375rem] text-ink-muted lg:col-span-4 lg:justify-self-end">
-          {project.industry ?? <Pending label="Industry to be supplied" />}
-        </p>
-      </div>
-
-      {/* The brief, read along the headline's chain. */}
-      <div className="mt-12 grid grid-cols-1 gap-12 md:mt-16 lg:grid-cols-3 lg:gap-6">
-        {chain.map(({ stage, items, impact }) => (
-          <div key={stage} className="relative pt-6">
-            <span aria-hidden="true" className="absolute inset-x-0 top-0 h-px bg-line">
-              <span
-                data-work-rule
-                className={cn("absolute inset-0 origin-left", impact ? "bg-ember" : "bg-ink/40")}
+    <div className="work-row" data-dir={direction} style={{ ["--work-duration" as string]: duration }}>
+      {[0, 1].map((copy) => (
+        <div key={copy} className="work-track" data-copy={copy === 1 || undefined}>
+          {cards.map((card, i) => (
+            <div
+              key={`${card.src}-${i}`}
+              className="relative aspect-[4/3] w-[clamp(12rem,24vw,22rem)] shrink-0 overflow-hidden rounded-[6px] shadow-[inset_0_0_0_1px_rgb(17_17_17/0.06)]"
+              style={{ backgroundColor: card.tone }}
+            >
+              <Image
+                src={card.src}
+                alt=""
+                fill
+                sizes="(min-width: 768px) 24vw, 12rem"
+                className="object-cover"
               />
-            </span>
-            <h4 className="text-[1.375rem] leading-none font-medium tracking-[-0.02em] text-ink">
-              {stage}
-            </h4>
-            <dl className="mt-6 grid gap-5">
-              {items.map(([term, value]) => (
-                <div key={term}>
-                  <dt className="text-[0.8125rem] text-ink-muted">{term}</dt>
-                  <dd className="mt-1.5 max-w-[40ch] text-[0.9375rem] leading-relaxed text-ink">
-                    {value ?? <Pending />}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-            {impact && <CaseStudyAction project={project} className="mt-8" />}
-          </div>
-        ))}
-      </div>
-    </article>
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
   );
 }
 
-function ProjectFigure({
+function ProjectRow({
   project,
   index,
-  aspect,
-  feather,
-  sizes,
-  className,
+  featured,
 }: {
   project: CaseStudy;
   index: number;
-  aspect: string;
-  /** Which way the concept ribbon runs off its frame, so its ends fade, not cut. */
-  feather: "art-feather-x" | "art-feather-y";
-  sizes: string;
-  className?: string;
+  featured: boolean;
 }) {
+  const services = project.services.length ? project.services.join(", ") : null;
   return (
-    <article aria-labelledby={`case-${project.id}`} className={className} data-reveal>
-      <ProjectVisual project={project} sizes={sizes} feather={feather} className={aspect} />
-      <div className="mt-6 flex items-baseline justify-between gap-4 border-t border-line pt-4 text-[0.9375rem] text-ink-muted">
-        <span className="tabular-nums">{String(index).padStart(2, "0")}</span>
-        <span className="text-right">{project.industry ?? <Pending label="Industry to be supplied" />}</span>
-      </div>
-      <h3 id={`case-${project.id}`} className="text-card mt-5 text-ink">
-        {project.client ?? <Pending label="Client name to be supplied" />}
-      </h3>
-      <p className="mt-3 max-w-[44ch] text-[0.9375rem] leading-relaxed text-ink-muted">
-        {project.challenge ??
-          "Challenge, approach and verified outcomes will be added once project details are supplied."}
-      </p>
-      <CaseStudyAction project={project} className="mt-6" />
-    </article>
+    <li
+      data-reveal-item
+      className="grid grid-cols-[3rem_1fr] gap-x-4 gap-y-3 border-t border-line py-8 md:py-10 lg:grid-cols-12 lg:gap-x-6"
+    >
+      <span className="pt-1 text-[0.9375rem] text-ink-muted tabular-nums lg:col-span-1">
+        {String(index).padStart(2, "0")}
+      </span>
+      <article
+        aria-labelledby={`case-${project.id}`}
+        className="col-start-2 grid gap-y-3 lg:col-span-11 lg:col-start-2 lg:grid-cols-11 lg:gap-x-6"
+      >
+        <div className="lg:col-span-4">
+          {featured && <p className="mb-2 text-[0.8125rem] text-ink-muted">Featured project</p>}
+          <h3 id={`case-${project.id}`} className="text-card text-ink">
+            {project.client ?? <Pending label="Client name to be supplied" />}
+          </h3>
+          <p className="mt-2 text-[0.9375rem] text-ink-muted">
+            {project.industry ?? <Pending label="Industry to be supplied" />}
+          </p>
+        </div>
+        <dl className="grid gap-3 text-[0.9375rem] lg:col-span-4">
+          <div>
+            <dt className="sr-only">Challenge</dt>
+            <dd className="max-w-[44ch] leading-relaxed text-ink">
+              {project.challenge ??
+                "Challenge, approach and verified outcomes will be added once project details are supplied."}
+            </dd>
+          </div>
+          {services && (
+            <div>
+              <dt className="sr-only">Services</dt>
+              <dd className="text-ink-muted">{services}</dd>
+            </div>
+          )}
+          {project.outcomes && (
+            <div>
+              <dt className="sr-only">Verified outcomes</dt>
+              <dd className="text-ink-muted">{project.outcomes}</dd>
+            </div>
+          )}
+        </dl>
+        <div className="lg:col-span-3 lg:justify-self-end">
+          <CaseStudyAction project={project} />
+        </div>
+      </article>
+    </li>
   );
 }
 
@@ -203,51 +179,4 @@ function CaseStudyAction({ project, className }: { project: CaseStudy; className
   }
   // No case study page yet — say so rather than linking to a dead route.
   return <p className={cn("text-[0.9375rem] text-ink-muted", className)}>Case study coming soon</p>;
-}
-
-/**
- * Real project imagery when supplied; otherwise generated ribbon artwork,
- * clearly labelled so it's never mistaken for client work.
- */
-function ProjectVisual({
-  project,
-  sizes,
-  featured = false,
-  feather = "art-feather-x",
-  className,
-}: {
-  project: CaseStudy;
-  sizes: string;
-  /** The wide ribbon: unfurled on scroll. */
-  featured?: boolean;
-  feather?: "art-feather-x" | "art-feather-y";
-  className?: string;
-}) {
-  const concept = !project.image;
-  const src = project.image ?? WORK.conceptArt[project.id];
-  return (
-    <div className={cn("relative", className)}>
-      {src && (
-        <div
-          data-work-unfurl={featured || undefined}
-          data-liquid-media
-          className={cn("absolute inset-0", concept && feather)}
-        >
-          <Image
-            src={src}
-            alt={concept ? "" : `${project.client ?? "Project"} — project imagery`}
-            fill
-            sizes={sizes}
-            // The artwork's twist sits right of centre; keep it in narrow crops.
-            className={cn("object-cover", featured && "object-[62%_30%]")}
-          />
-        </div>
-      )}
-      {concept && (
-        <PlaceholderTag className="absolute bottom-0 left-0 liquid-glass">
-          Concept art · imagery pending
-        </PlaceholderTag>
-      )}
-    </div>
-  );
 }

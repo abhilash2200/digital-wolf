@@ -7,7 +7,10 @@ import { PHILOSOPHY } from "@/constants/content";
  * "Different Disciplines. One Connected Vision." Four liquid-glass discs —
  * one per discipline — overlap over a pearl/ember ribbon whose twist sits
  * exactly at the shared centre (scripts/art/pearl-ribbon.html, seed 6.104). On scroll they
- * converge (ScrollChoreography: data-vision*). Hovering a discipline in the
+ * converge (ScrollChoreography: data-vision*). The frost inside each disc is
+ * a pre-blurred copy of the ribbon (vision-ribbon-frost.webp), kept in
+ * register as the disc moves — a live backdrop-filter was too costly.
+ * Hovering a discipline in the
  * list lights its disc (pure CSS :has(), see .vision in globals.css).
  * Without JS / reduced motion the diagram renders converged.
  */
@@ -50,7 +53,9 @@ export function GrowthPhilosophy() {
           </ul>
         </div>
 
-        <div className="lg:order-1 lg:col-span-6">
+        {/* The whole diagram drifts (parallax) so the ribbon and the frost
+            baked into each disc never slide out of register. */}
+        <div data-parallax="24" className="lg:order-1 lg:col-span-6">
           <ConnectedVision />
         </div>
       </div>
@@ -59,12 +64,17 @@ export function GrowthPhilosophy() {
 }
 
 // Disc centres sit on a small square around the middle; dx/dy (in % of the
-// disc) is how far apart each starts before converging.
+// disc) is how far apart each starts before converging. Discs are 60% of the
+// figure, inset 6% from its edges (so 34% from the far edge); `frost` places
+// each disc's baked frost (a figure-sized, pre-blurred copy of the ribbon) so
+// it lines up with the ribbon behind: −offset / 60%.
+const NEAR = "-10%"; // 6% / 60%
+const FAR = "-56.6667%"; // 34% / 60%
 const DISCS = [
-  { id: "strategy", label: "Strategy", pos: "left-[6%] top-[6%]", labelPos: "top-[24%] left-[20%]", dx: -34, dy: -34 },
-  { id: "technology", label: "Technology", pos: "right-[6%] top-[6%]", labelPos: "top-[24%] right-[20%] text-right", dx: 34, dy: -34 },
-  { id: "creativity", label: "Creativity", pos: "left-[6%] bottom-[6%]", labelPos: "bottom-[24%] left-[20%]", dx: -34, dy: 34 },
-  { id: "performance", label: "Performance", pos: "right-[6%] bottom-[6%]", labelPos: "bottom-[24%] right-[20%] text-right", dx: 34, dy: 34 },
+  { id: "strategy", label: "Strategy", pos: "left-[6%] top-[6%]", labelPos: "top-[24%] left-[20%]", dx: -34, dy: -34, frost: { left: NEAR, top: NEAR } },
+  { id: "technology", label: "Technology", pos: "right-[6%] top-[6%]", labelPos: "top-[24%] right-[20%] text-right", dx: 34, dy: -34, frost: { left: FAR, top: NEAR } },
+  { id: "creativity", label: "Creativity", pos: "left-[6%] bottom-[6%]", labelPos: "bottom-[24%] left-[20%]", dx: -34, dy: 34, frost: { left: NEAR, top: FAR } },
+  { id: "performance", label: "Performance", pos: "right-[6%] bottom-[6%]", labelPos: "bottom-[24%] right-[20%] text-right", dx: 34, dy: 34, frost: { left: FAR, top: FAR } },
 ] as const;
 
 function ConnectedVision() {
@@ -79,7 +89,7 @@ function ConnectedVision() {
       </figcaption>
 
       {/* The material behind the glass: the ribbon twists where all four meet. */}
-      <div data-parallax="24" aria-hidden="true" className="vision-ribbon absolute inset-0">
+      <div aria-hidden="true" className="vision-ribbon absolute inset-0">
         <Image
           src="/images/art/vision-ribbon.webp"
           alt=""
@@ -102,6 +112,10 @@ function ConnectedVision() {
           data-dy={disc.dy}
           className={`glass-disc absolute size-[60%] rounded-full ${disc.pos}`}
         >
+          {/* Baked frost: no live backdrop-filter (it cost ~half the frame rate
+              while the discs move); counter-moved with the disc in
+              ScrollChoreography so it stays in register with the ribbon. */}
+          <span data-vision-frost className="vision-frost" style={disc.frost} />
           <span className={`absolute text-[0.9375rem] font-medium text-ink ${disc.labelPos}`}>
             {disc.label}
           </span>

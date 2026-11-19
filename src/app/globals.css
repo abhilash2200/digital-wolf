@@ -241,7 +241,10 @@ body {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  background-color: rgb(255 255 255 / 0.58);
+  /* More opaque than a frosted card would need: there is no backdrop blur.
+     These sit over the soft ambient wash, where a blur is invisible but costs
+     a full re-filter every scroll frame (measured: it halved the frame rate). */
+  background-color: rgb(255 255 255 / 0.72);
   border: 1px solid rgb(255 255 255 / 0.85);
   color: var(--color-ink);
   box-shadow:
@@ -250,14 +253,12 @@ body {
     inset 0 -1px 0 rgb(17 17 17 / 0.04),
     inset 0 0 28px rgb(255 255 255 / 0.45),
     0 18px 40px -22px rgb(17 17 17 / 0.16);
-  -webkit-backdrop-filter: blur(22px) saturate(1.5);
-  backdrop-filter: blur(22px) saturate(1.5);
   /* Hover affects box-shadow and border — GSAP owns transform/opacity on these cards. */
   transition: box-shadow 500ms var(--ease-editorial), background-color 400ms ease;
 
   @media (hover: hover) {
     &:hover {
-      background-color: rgb(255 255 255 / 0.7);
+      background-color: rgb(255 255 255 / 0.82);
       box-shadow:
         0 0 0 1px rgb(17 17 17 / 0.06),
         inset 0 1px 0 rgb(255 255 255 / 1),
@@ -298,24 +299,30 @@ body {
   }
 }
 
-/* Larger glass surfaces: sections, panels, quotes, forms. Calmer than a card. */
+/* Larger glass surfaces: sections, panels, quotes, forms. Calmer than a card.
+   No backdrop blur (see gloss-card): they sit over the ambient wash. */
 @utility glass-panel {
   isolation: isolate;
-  background-color: rgb(255 255 255 / 0.55);
+  background-color: rgb(255 255 255 / 0.68);
   border-color: rgb(255 255 255 / 0.85);
   box-shadow:
     0 0 0 1px rgb(17 17 17 / 0.045),
     inset 0 1px 0 rgb(255 255 255 / 1),
     inset 0 0 36px rgb(255 255 255 / 0.4),
     0 18px 44px -26px rgb(17 17 17 / 0.14);
-  -webkit-backdrop-filter: blur(24px) saturate(1.45);
-  backdrop-filter: blur(24px) saturate(1.45);
 }
 
-/* Full-width frosted bars (mobile header once scrolled, footer, trust strip). */
+/* Full-width bars (mobile header once scrolled, footer, process section).
+   Section-sized bars sit over the ambient wash, so they carry no backdrop
+   blur (a 1440×800 blur re-filtered every scroll frame). Only the fixed
+   header bar, which has page content scrolling under it, is frosted. */
 @utility liquid-bar {
-  background-color: rgb(248 248 246 / 0.62);
+  background-color: rgb(248 248 246 / 0.72);
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.9), 0 8px 24px -18px rgb(17 17 17 / 0.18);
+}
+
+header.liquid-bar {
+  background-color: rgb(248 248 246 / 0.62);
   -webkit-backdrop-filter: blur(20px) saturate(1.6);
   backdrop-filter: blur(20px) saturate(1.6);
 }
@@ -366,6 +373,17 @@ html[data-refract="on"] .liquid-glass {
   background-color: rgb(255 255 255 / 0.26);
   -webkit-backdrop-filter: var(--lens,) blur(1.5px) saturate(1.7) brightness(1.04);
   backdrop-filter: var(--lens,) blur(1.5px) saturate(1.7) brightness(1.04);
+}
+
+/* While the page is scrolling (html[data-scrolling], set by LiquidEffects) the
+   lens is swapped for a plain GPU blur: Chromium runs SVG filters inside
+   backdrop-filter on the CPU, and the fixed header pill's lens re-ran every
+   scroll frame (measured: scrolling held at ~30fps). The lens returns ~160ms
+   after scrolling stops. The hero lens scrolls with the page and costs little,
+   so it keeps refracting. */
+html[data-refract="on"][data-scrolling] .liquid-glass:not(.hero-lens) {
+  -webkit-backdrop-filter: blur(8px) saturate(1.7) brightness(1.04);
+  backdrop-filter: blur(8px) saturate(1.7) brightness(1.04);
 }
 
 /* ------------------------------------------------------------------
@@ -424,6 +442,61 @@ html[data-refract="on"] .liquid-glass {
 }
 
 /* ------------------------------------------------------------------
+   Selected work card rows: full-bleed continuous carousels. Two identical
+   tracks per row loop seamlessly; data-dir sets the travel direction,
+   --work-duration the speed. Pause on hover. Reduced motion: still rows.
+   ------------------------------------------------------------------ */
+.work-row {
+  --work-gap: 0.75rem;
+  display: flex;
+  gap: var(--work-gap);
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+}
+
+@media (min-width: 768px) {
+  .work-row {
+    --work-gap: 1rem;
+  }
+}
+
+.work-track {
+  display: flex;
+  flex-shrink: 0;
+  gap: var(--work-gap);
+  min-width: 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .work-track {
+    animation: work-row var(--work-duration, 70s) linear infinite;
+    will-change: transform;
+  }
+
+  /* Left → right: the same loop, played backwards. */
+  .work-row[data-dir="right"] .work-track {
+    animation-direction: reverse;
+  }
+
+  .work-row:hover .work-track {
+    animation-play-state: paused;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .work-track[data-copy] {
+    display: none;
+  }
+}
+
+@keyframes work-row {
+  to {
+    transform: translateX(calc(-100% - var(--work-gap)));
+  }
+}
+
+/* ------------------------------------------------------------------
    Growth philosophy: four liquid-glass discs over the vision ribbon, with
    an ember core. Hovering a discipline in the list lights its disc.
    ------------------------------------------------------------------ */
@@ -439,31 +512,56 @@ html[data-refract="on"] .liquid-glass {
 }
 
 .glass-disc {
+  --disc-fill: rgb(255 255 255 / 0.1);
   isolation: isolate;
-  background:
-    radial-gradient(120% 120% at 30% 20%, rgb(255 255 255 / 0.5), rgb(255 255 255 / 0.08) 60%),
-    rgb(255 255 255 / 0.1);
+  overflow: hidden; /* clips the baked frost to the circle */
   border: 1px solid rgb(255 255 255 / 0.85);
   box-shadow:
     0 0 0 1px rgb(17 17 17 / 0.05),
     inset 0 2px 1px rgb(255 255 255 / 0.9),
     inset 0 -10px 24px rgb(17 17 17 / 0.05),
     0 24px 50px -30px rgb(17 17 17 / 0.25);
-  -webkit-backdrop-filter: blur(10px) saturate(1.6);
-  backdrop-filter: blur(10px) saturate(1.6);
-  transition: box-shadow 400ms var(--ease-editorial), background-color 400ms ease;
+  /* GSAP scrubs these; keep each on its own layer so moving is compositing,
+     not repainting. */
+  will-change: transform;
+  transition: box-shadow 400ms var(--ease-editorial);
+}
+
+/* The glass sheen, above the frost and below the label. */
+.glass-disc::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(120% 120% at 30% 20%, rgb(255 255 255 / 0.5), rgb(255 255 255 / 0.08) 60%),
+    var(--disc-fill);
+  pointer-events: none;
+}
+
+/* Baked frost: the ribbon, pre-masked, blurred (10px) and saturated (1.6) as
+   the old backdrop-filter rendered it (public/images/art/vision-ribbon-frost.webp).
+   Figure-sized, offset per disc (inline left/top) to sit in register. */
+.vision-frost {
+  position: absolute;
+  z-index: -1;
+  width: 166.6667%;
+  height: 166.6667%;
+  background: url("/images/art/vision-ribbon-frost.webp") center / 100% 100% no-repeat;
+  pointer-events: none;
 }
 
 .vision-core {
   background: radial-gradient(closest-side, rgb(255 90 31 / 0.55), rgb(255 90 31 / 0.18) 55%, transparent);
   filter: blur(6px);
+  will-change: transform, opacity;
 }
 
 .vision:has([data-cap="strategy"]:hover) [data-disc="strategy"],
 .vision:has([data-cap="technology"]:hover) [data-disc="technology"],
 .vision:has([data-cap="creativity"]:hover) [data-disc="creativity"],
 .vision:has([data-cap="performance"]:hover) [data-disc="performance"] {
-  background-color: rgb(255 255 255 / 0.4);
+  --disc-fill: rgb(255 255 255 / 0.4);
   box-shadow:
     0 0 0 2px var(--color-ember),
     inset 0 2px 1px rgb(255 255 255 / 0.9),
@@ -510,6 +608,17 @@ html[data-refract="on"] .liquid-glass {
   .process > li:hover [data-process-node] {
     box-shadow: 0 0 0 6px rgb(255 90 31 / 0.18);
   }
+}
+
+/* Elements GSAP moves on every scroll frame (scrubbed). Each gets its own
+   compositor layer so scrolling moves a texture instead of repainting (the
+   hero art is a large masked image; measured: promoting it took the hero
+   from ~30 to ~60fps). Opacity-only reveals don't need this. */
+[data-hero-visual],
+[data-hero-line],
+[data-problem-card],
+[data-parallax] {
+  will-change: transform;
 }
 
 /* Generated ribbons fade out where they leave their frame instead of being
